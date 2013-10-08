@@ -10,11 +10,29 @@ import org.cronosx.webserver.Webserver;
 
 public class FourServer extends Server
 {
-
+	private Gamemanager gameManager;
+	private Usermanager userManager;
+	
+	public FourServer()
+	{
+		gameManager = new Gamemanager(this);
+		userManager = new Usermanager(this);
+	}
+	
 	@Override
 	protected CGI getDefaultCGIHandler()
 	{
 		return new CGI(webserver, new PageHandlerFour());
+	}
+	
+	public Usermanager getUsermanager()
+	{
+		return userManager;
+	}
+	
+	public Gamemanager getGamemanager()
+	{
+		return gameManager;
 	}
 
 	@Override
