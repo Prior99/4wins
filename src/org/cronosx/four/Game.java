@@ -15,6 +15,7 @@ public class Game
 	private List<User> users;
 	private FourServer server;
 	private boolean started;
+	private char next;
 	
 	public Game(int id, int width, int height, FourServer server)
 	{
@@ -25,6 +26,7 @@ public class Game
 		area = new char[width][height];
 		this.id = id;
 		started = false;
+		next = 0;
 	}
 	
 	public void joinUser(User u)
@@ -69,9 +71,21 @@ public class Game
 	{
 		if(started)
 		{
-			int row = getLeast(column);
-			area[column][row] = (char)users.indexOf(user);
-			win(checkWin());
+			if(users.indexOf(user) != next)
+			{
+				server.getLog().log("User tried to set whose turn it isn't");
+			}
+			else
+			{
+				int row = getLeast(column);
+				area[column][row] = (char)users.indexOf(user);
+				win(checkWin());
+				for(User u : users)
+					u.placed(column, this, area[column][row]);
+				next++;
+				next = (char)(next % users.size());
+				users.get(next).nextTurn(this);
+			}
 		}
 		else
 			server.getLog().error("Tried to place coin on lobby game.");

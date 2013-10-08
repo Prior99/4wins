@@ -148,6 +148,11 @@ public class User implements WebSocketListener
 		}
 	}
 	
+	public void placed(int col, Game g, char u)
+	{
+		socket.send("placed;"+g.getID()+";"+col+";"+(int)u);
+	}
+	
 	@Override
 	public void onMessage(String s, WebSocket origin)
 	{
@@ -159,6 +164,19 @@ public class User implements WebSocketListener
 			{
 				Game game = server.getGamemanager().createGame();
 				game.joinUser(this);
+			}
+			if(param[0].equals("set") && param.length == 3)
+			{
+				try
+				{
+					int id = Integer.parseInt(param[1]);
+					int col = Integer.parseInt(param[2]);
+					server.getGamemanager().getGame(id).place(col, this);
+				}
+				catch(Exception e)
+				{
+					server.getLog().error("This is not a number");
+				}
 			}
 			if(param[0].equals("game") && param.length == 2)
 			{
@@ -187,6 +205,11 @@ public class User implements WebSocketListener
 				}
 			}
 		}
+	}
+	
+	public void nextTurn(Game g)
+	{
+		socket.send("turn;"+g.getID());
 	}
 
 	@Override
