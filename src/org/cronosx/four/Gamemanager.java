@@ -21,6 +21,11 @@ public class Gamemanager
 		load();
 	}
 	
+	public Game getGame(int id)
+	{
+		return games.get(id);
+	}
+	
 	public Game createGame()
 	{
 		Game g = new Game(amount, 20, 15, server);

@@ -32,7 +32,7 @@ public class Usermanager
 			int amount = in.readInt();
 			for(int i = 0; i < amount; i++)
 			{
-				users.put(in.readUTF(), new User(in));
+				users.put(in.readUTF(), new User(in, server));
 			}
 			in.close();
 			server.getLog().log(amount + " users successfully loaded.");
@@ -80,7 +80,7 @@ public class Usermanager
 		else
 		{
 			password = server.getSHA1(password);
-			User u = new User(username, password);
+			User u = new User(username, password, server);
 			users.put(username, u);
 			return true;
 		}

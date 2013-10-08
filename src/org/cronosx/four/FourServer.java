@@ -3,7 +3,6 @@ package org.cronosx.four;
 import java.sql.Statement;
 
 import org.cronosx.cgi.CGI;
-import org.cronosx.cgi.PageHandler;
 import org.cronosx.server.DefaultWebSocketListener;
 import org.cronosx.server.Server;
 import org.cronosx.webserver.Webserver;

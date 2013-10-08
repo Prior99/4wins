@@ -30,9 +30,39 @@ public class Game
 	public void joinUser(User u)
 	{
 		if(!started)
+		{
 			users.add(u);
+			u.joined(this);
+		}
 		else
 			server.getLog().error("Tried to join user on started game.");
+	}
+	
+	public int getWidth()
+	{
+		return width;
+	}
+	
+	public int getHeight()
+	{
+		return height;
+	}
+	
+	public char[][] getArea()
+	{
+		return area;
+	}
+	
+	public User[] getUsers()
+	{
+		User[] us = new User[users.size()];
+		users.toArray(us);
+		return us;
+	}
+	
+	public int getID()
+	{
+		return id;
 	}
 	
 	public void place(int column, User user)
@@ -41,10 +71,20 @@ public class Game
 		{
 			int row = getLeast(column);
 			area[column][row] = (char)users.indexOf(user);
-			checkWin();
+			win(checkWin());
 		}
 		else
 			server.getLog().error("Tried to place coin on lobby game.");
+	}
+	
+	private void win(User u)
+	{
+		if(u == null) return;
+		else
+		{
+			server.getLog().log("Game won: " + id);
+			u.win();
+		}
 	}
 	
 	private User checkWin()
