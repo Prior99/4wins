@@ -8,6 +8,7 @@ function Loader(width, height)
 	this.ctx = this.canvas[0].getContext("2d");
 	this.ctx.lineWidth=2;
 	this.x = 0;
+	this.started = new Date().getTime();
 }
 
 Loader.prototype.start = function()
@@ -18,6 +19,7 @@ Loader.prototype.start = function()
 		self.redraw();
 	}, 30);
 }
+
 
 Loader.prototype.redraw = function()
 {
@@ -35,6 +37,14 @@ Loader.prototype.redraw = function()
 		this.ctx.strokeStyle= "rgba(0, 0, 255," + a + ")";
 		this.drawRadiantLine(this.mX, this.mY, this.height / 20 * 7, this.height / 2, y - this.x);
 	}
+	var timeDiff = (new Date().getTime() - this.started) / 1000;
+	
+	var txt = timeDiff.toFixed(1) + "s";
+	var fSize = Math.floor(this.width/ (txt.length * 1.2));
+	this.ctx.fillStyle="#00F";
+	this.ctx.font= fSize+"px Arial";
+	this.ctx.textAlign = 'center';
+	this.ctx.fillText(txt, this.width / 2 , this.height/2 + fSize/3);
 }
 
 Loader.prototype.stop = function()

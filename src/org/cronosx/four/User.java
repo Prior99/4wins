@@ -184,6 +184,10 @@ public class User implements WebSocketListener
 					server.getLog().error("This is not a number");
 				}
 			}
+			if(param[0].equals("games") && param.length == 1)
+			{
+				sendGameList();
+			}
 			if(param[0].equals("game") && param.length == 2)
 			{
 				try
@@ -203,6 +207,7 @@ public class User implements WebSocketListener
 					sb.append(";").append(users.length);
 					for(User u : users)
 						sb.append(";").append(u.getName());
+					socket.send(sb.toString());
 					
 				}
 				catch(Exception e)

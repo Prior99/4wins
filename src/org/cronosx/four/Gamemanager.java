@@ -30,6 +30,13 @@ public class Gamemanager
 	{
 		Game g = new Game(amount, 20, 15, server);
 		games.put(amount++, g);
+		new Thread()
+		{
+			public void run()
+			{
+				save();
+			}
+		}.start();
 		return g;
 	}
 	
@@ -41,9 +48,10 @@ public class Gamemanager
 			amount = in.readInt();
 			for(int i = 0; i < amount; i++)
 			{
-				games.put(in.readInt(), new Game(in));
+				games.put(in.readInt(), new Game(in, server));
 			}
 			in.close();
+			server.getLog().log(amount + " games successfully loaded.");
 		}
 		catch(Exception e)
 		{
@@ -64,6 +72,7 @@ public class Gamemanager
 				games.get(i).save(out);
 			}
 			out.close();
+			server.getLog().log(games.size() + " games successfully saved.");
 		}
 		catch(Exception e)
 		{

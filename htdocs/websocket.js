@@ -31,6 +31,7 @@ WebsocketConnection.prototype.connect = function()
 WebsocketConnection.prototype.onOpen = function(evt) 
 { 
 	console.log("Websocket connected");
+	if(this.openSlave != undefined) this.openSlave();
 }; 
 
 WebsocketConnection.prototype.onClose = function(evt) 

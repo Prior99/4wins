@@ -14,8 +14,8 @@ public class FourServer extends Server
 	
 	public FourServer()
 	{
-		gameManager = new Gamemanager(this);
 		userManager = new Usermanager(this);
+		gameManager = new Gamemanager(this);
 	}
 	
 	@Override

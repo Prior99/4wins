@@ -28,6 +28,49 @@ public class Game
 		started = false;
 		next = 0;
 	}
+
+	public Game(DataInputStream in, FourServer server) throws IOException
+	{
+		this.server = server;
+		id = in.readInt();
+		width = in.readInt();
+		height = in.readInt();
+		users = new LinkedList<User>();
+		area = new char[width][height];
+		for(int i = 0; i < width; i++)
+		{
+			for(int j = 0; j < height; j++)
+			{
+				area[i][j] = in.readChar();
+			}
+		}
+		int amount = in.readInt();
+		for(int i = 0; i < amount; i++)
+		{
+			users.add(server.getUsermanager().getUser(in.readUTF()));
+		}
+		started = in.readBoolean();
+	}
+	
+	public void save(DataOutputStream out) throws IOException
+	{
+		out.writeInt(id);
+		out.writeInt(width);
+		out.writeInt(height);
+		for(int i = 0; i < width; i++)
+		{
+			for(int j = 0; j < height; j++)
+			{
+				out.writeChar(area[i][j]);
+			}
+		}
+		out.writeInt(users.size());
+		for(User u:users)
+		{
+			out.writeUTF(u.getName());
+		}
+		out.writeBoolean(started);
+	}
 	
 	public void start()
 	{
@@ -159,43 +202,4 @@ public class Game
 		return -1;
 	}
 	
-	public Game(DataInputStream in) throws IOException
-	{
-		id = in.readInt();
-		width = in.readInt();
-		height = in.readInt();
-		for(int i = 0; i < width; i++)
-		{
-			for(int j = 0; j < height; j++)
-			{
-				area[i][j] = in.readChar();
-			}
-		}
-		int amount = in.readInt();
-		for(int i = 0; i < amount; i++)
-		{
-			users.add(server.getUsermanager().getUser(in.readUTF()));
-		}
-		started = in.readBoolean();
-	}
-	
-	public void save(DataOutputStream out) throws IOException
-	{
-		out.writeInt(id);
-		out.writeInt(width);
-		out.writeInt(height);
-		for(int i = 0; i < width; i++)
-		{
-			for(int j = 0; j < height; j++)
-			{
-				out.writeChar(area[i][j]);
-			}
-		}
-		out.writeInt(users.size());
-		for(User u:users)
-		{
-			out.writeUTF(u.getName());
-		}
-		out.writeBoolean(started);
-	}
 }
