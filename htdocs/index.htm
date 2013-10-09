@@ -1,16 +1,22 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
+		<script type="text/javascript" src="loader.js"></script>
+		<script type="text/javascript" src="cookies.js"></script>
+		<script type="text/javascript" src="get.js"></script>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript" src="messages.js"></script>
+		<script type="text/javascript" src="websocket.js"></script>
+		<script type="text/javascript" src="game.js"></script>
 		<script type="text/javascript" src="4win.js"></script>
 		<script type="text/javascript" src="symbol.js"></script>
 	</head>
 	<body>
 		<div class="content">
-			<p>GameArea:</p>
-			<canvas id="c" width="800" height="600" style="border: 1px solid black;"></canvas>
+			<!--<canvas id="c" width="800" height="600" style="border: 1px solid black;"></canvas>-->
 			<script type="text/javascript">
-				var game = new FourWins("c", 20, 15);
-				
+			//	var game = new FourWins("c", 20, 15);
+				var game = new Game();
 			</script>
 		</div>
 	</body>

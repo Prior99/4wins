@@ -148,6 +148,11 @@ public class User implements WebSocketListener
 		}
 	}
 	
+	public void startGame(Game g)
+	{
+		socket.send("start;"+g.getID());
+	}
+	
 	public void placed(int col, Game g, char u)
 	{
 		socket.send("placed;"+g.getID()+";"+col+";"+(int)u);

@@ -29,6 +29,20 @@ public class Game
 		next = 0;
 	}
 	
+	public void start()
+	{
+		if(started)
+		{
+			server.getLog().error("Tried to start a game that was already started");
+		}
+		else
+		{
+			started = true;
+			for(User u : users)
+				u.startGame(this);
+		}
+	}
+	
 	public void joinUser(User u)
 	{
 		if(!started)

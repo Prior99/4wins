@@ -27,11 +27,26 @@ public class WelcomeWebsocketListener extends DefaultWebSocketListener
 			if(param[0].equals("login") && param.length == 3)
 			{
 				User user = server.getUsermanager().login(param[1], param[2]);
-				origin.setWebSocketListener(user);
+				if(user != null)
+				{
+					origin.send("login;ok");
+					origin.setWebSocketListener(user);
+				}
+				else
+				{
+					origin.send("login;failed");
+				}
 			}
 			else if(param[0].equals("register") && param.length == 3)
 			{
-				server.getUsermanager().register(param[1], param[2]);
+				if(server.getUsermanager().register(param[1], param[2]))
+				{
+					origin.send("register;ok");
+				}
+				else
+				{
+					origin.send("register;failed");
+				}
 			}
 			else
 			{
