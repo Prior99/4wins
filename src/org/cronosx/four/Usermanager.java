@@ -44,6 +44,12 @@ public class Usermanager
 		}
 	}
 	
+	public void loadGames()
+	{
+		for(String s : users.keySet())
+			users.get(s).loadGames();
+	}
+	
 	public void save()
 	{
 		try

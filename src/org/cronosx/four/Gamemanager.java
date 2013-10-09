@@ -35,6 +35,7 @@ public class Gamemanager
 			public void run()
 			{
 				save();
+				server.getUsermanager().save();
 			}
 		}.start();
 		return g;

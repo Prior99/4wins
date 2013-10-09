@@ -4,24 +4,43 @@
  ** 2013 By Prior (Frederick Gnodtke)
  **
  **/
-function FourWins(id, width, height)
+function FourWins(width, height)
 {
 	var self = this; //Forward to call this from within functions
-	this.canvas = document.getElementById(id); //Store our canvas
-	this.canvas.addEventListener("mousemove", function(event)
+	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo("body");
+	this.canvas[0].addEventListener("mousemove", function(event)
 	{
 		self.onMouseMove(event);
 	});
-	this.canvas.addEventListener("mousedown", function(event)
+	this.canvas[0].addEventListener("mousedown", function(event)
 	{
 		self.onMouseDown(event);
 	});
-	this.ctx = this.canvas.getContext("2d"); //Store our context
+	this.ctx = this.canvas[0].getContext("2d"); //Store our context
 	this.init(width, height); //initialize private variables
-	setInterval(function() {
+	this.interval = setInterval(function() {
 		self.redraw();
 	}, 30);
 	this.p = 0; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+}
+
+FourWins.prototype.setMap = function(map)
+{
+	for(var x = 0; x < this.spread.width; x++)
+	{
+		for(var y = this.spread.height - 1; y >= 0; y--)
+		{
+			console.log(map.charCodeAt(x * this.spread.height + y) - 65);
+			if(map.charCodeAt(x * this.spread.height + y) != 65)
+				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65, true);
+		}
+	}
+}
+
+FourWins.prototype.destroy = function()
+{
+	this.canvas.remove();
+	clearInterval(this.interval);
 }
 
 /*
@@ -48,10 +67,10 @@ FourWins.prototype.onMouseDown = function(event)
 	console.log({x: Math.floor(x), y: y, arr: this.array, p: this.p % 4 + 1});
 }
 
-FourWins.prototype.place = function(x, y, player)
+FourWins.prototype.place = function(x, y, player, f)
 {
 	this.array[x][y] = player;
-	this.symbols.push(new Symbol({x : x, y : y}, player, this.tileDim, this.ctx));
+	this.symbols.push(new Symbol({x : x, y : y}, player, this.tileDim, this.ctx, f));
 }
 
 /*
@@ -64,8 +83,8 @@ FourWins.prototype.init = function(width, height)
 		y : -1
 	};
 	this.dim = { //Width of the Game
-		width : this.canvas.width,
-		height : this.canvas.height
+		width : this.canvas[0].width,
+		height : this.canvas[0].height
 	};
 	this.spread = { //Amount of tiles in x and y direction
 		width: width,

@@ -21,9 +21,11 @@ public class User implements WebSocketListener
 	private WebSocket socket;
 	private FourServer server;
 	private List<Game> games;
+	private List<Integer> tmpGameIDs;
 	
 	public User(DataInputStream in, FourServer server) throws IOException
 	{
+		tmpGameIDs = new LinkedList<Integer>();
 		games = new LinkedList<Game>();
 		this.server = server;
 		name = in.readUTF();
@@ -36,12 +38,18 @@ public class User implements WebSocketListener
 		int amount = in.readInt();
 		for(int i = 0; i < amount; i++)
 		{
-			Game g = server.getGamemanager().getGame(in.readInt());
-			games.add(g);
+			tmpGameIDs.add(in.readInt());
 		}
 	}
 	
-	
+	public void loadGames()
+	{
+		for(Integer i : tmpGameIDs)
+		{
+			Game g = server.getGamemanager().getGame(i);
+			games.add(g);
+		}
+	}
 	
 	public User(String name, String password, FourServer server)
 	{
@@ -201,7 +209,7 @@ public class User implements WebSocketListener
 					{
 						for(int j = 0; j < g.getHeight(); j++)
 						{
-							sb.append('A' + area[i][j]);
+							sb.append((char)('A' + area[i][j])+"");
 						}
 					}
 					sb.append(";").append(users.length);

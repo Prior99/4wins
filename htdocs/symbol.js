@@ -1,4 +1,4 @@
-function Symbol(pos, player, dim, ctx)
+function Symbol(pos, player, dim, ctx, f)
 {
 	pos.x *= dim.width;
 	pos.y *= dim.height;
@@ -7,6 +7,7 @@ function Symbol(pos, player, dim, ctx)
 		x : pos.x,
 		y : -dim.height
 	};
+	if(f) this.realPos.y = pos.y;
 	this.player = player;
 	this.dim = dim;
 	this.ctx = ctx;
@@ -34,7 +35,7 @@ function Symbol(pos, player, dim, ctx)
 
 Symbol.prototype.redraw = function()
 {
-	if(this.realPos.y < this.pos.y) this.realPos.y += 40;
+	if(this.realPos.y < this.pos.y) this.realPos.y += 20;
 	this.drawCircleSymbol();
 }
 

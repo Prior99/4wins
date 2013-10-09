@@ -24,6 +24,13 @@ public class Game
 		this.width = width;
 		this.height = height;
 		area = new char[width][height];
+		for(int x = 0; x < width; x++)
+		{
+			for(int y = 0; y < height; y++)
+			{
+				area[x][y] = (char)(int)(Math.random()*4);
+			}
+		}
 		this.id = id;
 		started = false;
 		next = 0;

@@ -24,16 +24,32 @@ Game.prototype.start = function()
 		self.games.html("");
 		for(var i = 1; i < param.length; i++)
 		{
-			$("<button>Game #"+param[i]+"</button>").appendTo(self.games).click(function()
+			var btn = $("<button>Game #"+param[i]+"</button>").appendTo(self.games).click(function()
 			{
-		
-			});
+				self.showGame(this.index);
+			})[0].index = param[i];
 		}
 		$("<button>Create new Game</button>").appendTo(self.games).click(function(){
 			self.createGame();
 		});
 	});
 };
+
+Game.prototype.showGame = function(index)
+{
+	var self = this;
+	this.socket.send("game", index);
+	this.socket.addHandler("game", function(param)
+	{
+		var width = parseInt(param[1]);
+		var height = parseInt(param[2]);
+		console.log(param);
+		if(self.gui != undefined)
+			self.gui.destroy();
+		self.gui = new FourWins(width, height);
+		self.gui.setMap(param[3]);
+	});
+}
 
 Game.prototype.createGame = function()
 {
