@@ -40,6 +40,7 @@ public class Usermanager
 		catch(Exception e)
 		{
 			server.getLog().error("Load failed!");
+			e.printStackTrace();
 		}
 	}
 	
@@ -60,6 +61,7 @@ public class Usermanager
 		catch(Exception e)
 		{
 			server.getLog().error("Save failed!");
+			e.printStackTrace();
 		}
 	}
 	
@@ -85,6 +87,13 @@ public class Usermanager
 			server.getLog().log("New user \"" + username + "\" registered with password \"" + password + "\"");
 			User u = new User(username, password, server);
 			users.put(username, u);
+			new Thread()
+			{
+				public void run()
+				{
+					save();
+				}
+			}.start();
 			return true;
 		}
 	}

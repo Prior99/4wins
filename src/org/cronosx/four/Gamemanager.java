@@ -48,6 +48,7 @@ public class Gamemanager
 		catch(Exception e)
 		{
 			server.getLog().error("Load Failed!");
+			e.printStackTrace();
 		}
 	}
 	
@@ -67,6 +68,7 @@ public class Gamemanager
 		catch(Exception e)
 		{
 			server.getLog().error("Save failed!");
+			e.printStackTrace();
 		}
 	}
 }

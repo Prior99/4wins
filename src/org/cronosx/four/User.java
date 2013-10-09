@@ -45,6 +45,7 @@ public class User implements WebSocketListener
 	
 	public User(String name, String password, FourServer server)
 	{
+		games = new LinkedList<Game>();
 		this.server = server;
 		this.name = name;
 		this.password = password;
