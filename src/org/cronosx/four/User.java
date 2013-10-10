@@ -274,6 +274,11 @@ public class User implements WebSocketListener
 		socket.send(sb.toString());
 	}
 	
+	public void sendWin(User u, char id, int x1, int y1, int x2, int y2)
+	{
+		socket.send("win;"+u.getName()+";"+id+";"+x1+";"+y1+";"+x2+";"+y2);
+	}
+	
 	public void nextTurn(Game g)
 	{
 		socket.send("turn;"+g.getID());

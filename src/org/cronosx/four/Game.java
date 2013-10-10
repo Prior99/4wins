@@ -17,6 +17,8 @@ public class Game
 	private boolean started;
 	private char next;
 	
+	private int x1, x2, y1, y2;
+	
 	public Game(int id, int width, int height, FourServer server)
 	{
 		this.server = server;
@@ -143,7 +145,7 @@ public class Game
 			{
 				int row = getLeast(column);
 				area[column][row] = (char)(users.indexOf(user) + 1);
-				win(checkWin(column, row));
+				checkWin(column, row);
 				for(User u : users)
 					u.placed(column, this, area[column][row]);
 				next++;
@@ -157,41 +159,54 @@ public class Game
 	
 	private void win(User u)
 	{
-		if(u == null) return;
-		else
+	}
+	
+	private boolean checkLine(int x, int y, int deltax, int deltay, char c)
+	{
+		int r;
+		x1 = x; x2 = x;
+		y1 = y; y2 = y;
+		r = 1;
+		for(int i = 1; 
+				x + i * deltax < width && 
+				x + i * deltax >= 0 && 
+				y + i * deltay < height && 
+				y + i * deltay >= 0 && 
+				area[x + i * deltax][y + i * deltay] == c; i++) 
 		{
+			x2 = x + i * deltax;
+			y2 = y + i * deltay;
+			r++;
+		}
+		for(int i = 1; 
+				x - i * deltax < width && 
+				x - i * deltax >= 0 && 
+				y - i * deltay < height && 
+				y - i * deltay >= 0 && 
+				area[x - i * deltax][y - i *deltay] == c; i++) 
+		{
+			x1 = x - i * deltax;
+			y1 = y - i * deltay;
+			r++;
+		}
+		return r >= 4;
+	}
+	
+	private void checkWin(int x, int y)
+	{
+		char orig = area[x][y];
+		if(checkLine(x, y, 1, 0, orig) ||
+				checkLine(x, y, 0, 1, orig) ||
+				checkLine(x, y, 1, 1, orig) ||
+				checkLine(x, y, -1, 1, orig))
+		{
+			User u = users.get(orig - 1);
 			server.getLog().log(u.getName() + " HAS WON!");
 			server.getLog().log("Game won: " + id);
 			u.win();
+			for(User u2 : users) u2.sendWin(u, orig, x1, y1, x2, y2);
 		}
-	}
-	
-	private User checkWin(int x, int y)
-	{
-		char orig = area[x][y];
-		int r;
-		
-		//Horizontal
-		r = 1;
-		for(int i = 1; x + i < width && area[x + i][y] == orig; i++) r++;
-		for(int i = 1; x - i >= 0    && area[x - i][y] == orig; i++) r++;
-		if(r >= 4) return users.get(orig - 1);
-		//Vertical
-		r = 1;
-		for(int i = 1; y + i < height && area[x][y + i] == orig; i++) r++;
-		for(int i = 1; y - i >= 0     && area[x][y - i] == orig; i++) r++;
-		if(r >= 4) return users.get(orig - 1);
-		//Diagonally left
-		r = 1;
-		for(int i = 1; y + i < height && x - i >= 0    && area[x - i][y + i] == orig; i++) r++;
-		for(int i = 1; y - i >= 0     && x + i < width && area[x + i][y - i] == orig; i++) r++;
-		if(r >= 4) return users.get(orig - 1);
-		//Diagonally right
-		r = 1;
-		for(int i = 1; y + i < height && x + i < width && area[x + i][y + i] == orig; i++) r++;
-		for(int i = 1; y - i >= 0     && x - i >= 0    && area[x - i][y - i] == orig; i++) r++;
-		if(r >= 4) return users.get(orig - 1);
-		return null;
+
 	}
 	
 	private int getLeast(int column)

@@ -22,7 +22,44 @@ function FourWins(width, height, gameO)
 	this.interval = setInterval(function() {
 		self.redraw();
 	}, 30);
+	this.wins = {has : false};
 	//this.p = 0; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+}
+
+FourWins.prototype.win = function(x1, y1, x2, y2)
+{
+	this.wins = {
+		has : true,
+		x1 : x1,
+		y1 : y1,
+		x2 : x2,
+		y2 : y2,
+		a : 0
+	};
+}
+
+FourWins.prototype.redrawWin = function()
+{
+	if(this.wins.has == true)
+	{
+		for(var x = 0; x < this.spread.width; x++)
+		{
+			for(var y = 0; y < this.spread.height; y++)
+			{
+				this.ctx.fillStyle = "rgba(30, 30, 30, " + this.wins.a + ")";
+				this.ctx.beginPath();
+				this.ctx.rect(x * this.tileDim.width, y * this.tileDim.height, this.tileDim.width, this.tileDim.height);
+				this.ctx.fill();
+			}
+		}
+		this.ctx.strokeStyle = "rgba(255, 255, 255, " + this.wins.a + ")";
+		this.ctx.lineWidth = 20;
+		this.ctx.beginPath();
+		this.ctx.moveTo((this.wins.x1 + 0.5) * this.tileDim.width, (this.wins.y1 + 0.5) * this.tileDim.height);
+		this.ctx.lineTo((this.wins.x2 + 0.5) * this.tileDim.width, (this.wins.y2 + 0.5) * this.tileDim.height);
+		this.ctx.stroke();
+		if(this.wins.a < 0.5) this.wins.a += 0.005;
+	}
 }
 
 FourWins.prototype.setMap = function(map)
@@ -31,7 +68,6 @@ FourWins.prototype.setMap = function(map)
 	{
 		for(var y = this.spread.height - 1; y >= 0; y--)
 		{
-			console.log(map.charCodeAt(x * this.spread.height + y) - 65);
 			if(map.charCodeAt(x * this.spread.height + y) != 65)
 				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65, true);
 		}
@@ -49,8 +85,8 @@ FourWins.prototype.destroy = function()
  */
 FourWins.prototype.onMouseMove = function(event)
 {
-	var x = event.offsetX / this.tileDim.width; 
-	var y = event.offsetY / this.tileDim.height;
+	var x = event.clientX / this.tileDim.width; 
+	var y = event.clientY / this.tileDim.height;
 	this.selected.x = Math.floor(x);
 	this.selected.y = Math.floor(y);
 }
@@ -60,12 +96,11 @@ FourWins.prototype.onMouseMove = function(event)
  */
 FourWins.prototype.onMouseDown = function(event)
 {
-	var x = event.offsetX / this.tileDim.width; 
-	var y = event.offsetY / this.tileDim.height;
+	var x = event.clientX / this.tileDim.width; 
+	var y = event.clientY / this.tileDim.height;
 	y = this.lowestY(Math.floor(x));
 	//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
 	//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
-	console.log({x: Math.floor(x), y: y, arr: this.array, p: this.p % 4 + 1});
 	this.gameO.place(Math.floor(x), y);
 }
 
@@ -136,6 +171,7 @@ FourWins.prototype.redraw = function()
 	this.ctx.clearRect(0, 0, this.dim.width, this.dim.height); //Clear whole image
 	this.redrawGrid();
 	this.redrawSymbols();
+	this.redrawWin();
 };
 
 FourWins.prototype.redrawSymbols = function()

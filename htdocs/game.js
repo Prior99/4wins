@@ -66,6 +66,16 @@ Game.prototype.showGame = function(index)
 				self.gui.place(col, self.gui.lowestY(col), parseInt(param[3]));
 			}
 		});
+		self.socket.addHandler("win", function(param)
+		{
+			var x1 = parseInt(param[3]);
+			var x2 = parseInt(param[5]);
+			var y1 = parseInt(param[4]);
+			var y2 = parseInt(param[6]);
+			var username = param[1];
+			self.gui.win(x1, y1, x2, y2);
+			message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
+		});
 	});
 	this.socket.addHandler("lobby", function(param)
 	{
