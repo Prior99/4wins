@@ -11,10 +11,12 @@ function FourWins(width, height, gameO, parent)
 	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo(parent);
 	this.canvas[0].addEventListener("mousemove", function(event)
 	{
+		event.preventDefault();
 		self.onMouseMove(event);
 	});
 	this.canvas[0].addEventListener("mousedown", function(event)
 	{
+		event.preventDefault();
 		self.onMouseDown(event);
 	});
 	this.ctx = this.canvas[0].getContext("2d"); //Store our context
