@@ -32,12 +32,22 @@ Game.prototype.start = function()
 		$("<button>Create new Game</button>").appendTo(self.games).click(function(){
 			self.createGame();
 		});
+		var id = $("<input type='text' />").appendTo(self.games);
+		$("<button>Join</button>").appendTo(self.games).click(function() {
+			self.socket.send("join", id.val());
+		});
 	});
 };
+
+Game.prototype.place = function(x, y)
+{
+	this.socket.send("set", this.currentIndex, x);
+}
 
 Game.prototype.showGame = function(index)
 {
 	var self = this;
+	this.currentIndex = index;
 	this.socket.send("game", index);
 	this.socket.addHandler("game", function(param)
 	{
@@ -46,8 +56,20 @@ Game.prototype.showGame = function(index)
 		console.log(param);
 		if(self.gui != undefined)
 			self.gui.destroy();
-		self.gui = new FourWins(width, height);
+		self.gui = new FourWins(width, height, self);
 		self.gui.setMap(param[3]);
+		self.socket.addHandler("placed", function(param)
+		{
+			if(parseInt(param[1]) == self.currentIndex)
+			{
+				var col = parseInt(param[2]);
+				self.gui.place(col, self.gui.lowestY(col), parseInt(param[3]) + 1);
+			}
+		});
+	});
+	this.socket.addHandler("lobby", function(param)
+	{
+		self.displayLobbyMask(param);
 	});
 }
 
@@ -55,6 +77,28 @@ Game.prototype.createGame = function()
 {
 	this.socket.send("create");
 	wait();
+}
+
+Game.prototype.displayLobbyMask = function(param)
+{
+	var self = this;
+	var lobby, users;
+	lobby = $('<div class="lobby"></div>').appendTo("body");
+	$("<h1>Lobby</h1>").appendTo(lobby);
+	users = $("<div class='users'></div>").appendTo(lobby);
+	for(var i = 2; i < param.length; i++)
+	{
+		$("<p>" + param[i] + "</p>").appendTo(users);
+	}
+	$('<button>Start Game</button>').appendTo(lobby).click(function() {
+		self.socket.send("start", param[1]);
+	});
+	this.socket.addHandler("lobbyjoin", function(param2) {
+		if(parseInt(param2[1]) == parseInt(param[1]))
+		{
+			$("<p>" + param2[2] + "</p>").appendTo(users);
+		}
+	});
 }
 
 /*

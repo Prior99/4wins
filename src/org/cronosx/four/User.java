@@ -157,10 +157,10 @@ public class User implements WebSocketListener
 		}
 	}
 	
-	public void startGame(Game g)
+	/*public void startGame(Game g)
 	{
 		socket.send("start;"+g.getID());
-	}
+	}*/
 	
 	public void placed(int col, Game g, char u)
 	{
@@ -174,10 +174,35 @@ public class User implements WebSocketListener
 		String[] param = s.split(";");
 		if(param.length > 0)
 		{
+			if(param[0].equals("join") && param.length == 2)
+			{
+				try
+				{
+					int id = Integer.parseInt(param[1]);
+					Game g = server.getGamemanager().getGame(id);
+					g.joinUser(this);
+				}
+				catch(Exception e)
+				{
+					server.getLog().error("This is not a number");
+				}
+			}
 			if(param[0].equals("create") && param.length == 1)
 			{
 				Game game = server.getGamemanager().createGame();
 				game.joinUser(this);
+			}
+			if(param[0].equals("start") && param.length == 2)
+			{
+				try
+				{
+					int id = Integer.parseInt(param[1]);
+					server.getGamemanager().getGame(id).start();
+				}
+				catch(Exception e)
+				{
+					server.getLog().error("This is not a number");
+				}
 			}
 			if(param[0].equals("set") && param.length == 3)
 			{
@@ -190,6 +215,7 @@ public class User implements WebSocketListener
 				catch(Exception e)
 				{
 					server.getLog().error("This is not a number");
+					e.printStackTrace();
 				}
 			}
 			if(param[0].equals("games") && param.length == 1)
@@ -202,21 +228,10 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = server.getGamemanager().getGame(id);
-					char[][] area = g.getArea();
-					User[] users = g.getUsers();
-					StringBuilder sb = new StringBuilder("game;").append(g.getWidth()).append(";").append(g.getHeight()).append(";");
-					for(int i = 0; i < g.getWidth(); i++)
-					{
-						for(int j = 0; j < g.getHeight(); j++)
-						{
-							sb.append((char)('A' + area[i][j])+"");
-						}
-					}
-					sb.append(";").append(users.length);
-					for(User u : users)
-						sb.append(";").append(u.getName());
-					socket.send(sb.toString());
-					
+					if(g.isStarted())
+						sendGame(g);
+					else
+						sendLobby(g);
 				}
 				catch(Exception e)
 				{
@@ -224,6 +239,39 @@ public class User implements WebSocketListener
 				}
 			}
 		}
+	}
+
+	public void sendLobby(Game g)
+	{
+		StringBuilder sb = new StringBuilder("lobby;"+g.getID());
+		for(User u : g.getUsers())
+		{
+			sb.append(";").append(u.getName());
+		}
+		socket.send(sb.toString());
+	}
+	
+	public void sendLobbyJoin(Game g, User u)
+	{
+		socket.send("lobbyjoin;"+g.getID()+";"+u.getName());
+	}
+	
+	public void sendGame(Game g)
+	{
+		char[][] area = g.getArea();
+		User[] users = g.getUsers();
+		StringBuilder sb = new StringBuilder("game;").append(g.getWidth()).append(";").append(g.getHeight()).append(";");
+		for(int i = 0; i < g.getWidth(); i++)
+		{
+			for(int j = 0; j < g.getHeight(); j++)
+			{
+				sb.append((char)('A' + area[i][j])+"");
+			}
+		}
+		sb.append(";").append(users.length);
+		for(User u : users)
+			sb.append(";").append(u.getName());
+		socket.send(sb.toString());
 	}
 	
 	public void nextTurn(Game g)

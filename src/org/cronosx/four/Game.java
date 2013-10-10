@@ -24,13 +24,6 @@ public class Game
 		this.width = width;
 		this.height = height;
 		area = new char[width][height];
-		for(int x = 0; x < width; x++)
-		{
-			for(int y = 0; y < height; y++)
-			{
-				area[x][y] = (char)(int)(Math.random()*4);
-			}
-		}
 		this.id = id;
 		started = false;
 		next = 0;
@@ -57,6 +50,11 @@ public class Game
 			users.add(server.getUsermanager().getUser(in.readUTF()));
 		}
 		started = in.readBoolean();
+	}
+	
+	public boolean isStarted()
+	{
+		return started;
 	}
 	
 	public void save(DataOutputStream out) throws IOException
@@ -89,7 +87,7 @@ public class Game
 		{
 			started = true;
 			for(User u : users)
-				u.startGame(this);
+				u.sendGame(this);
 		}
 	}
 	
@@ -99,6 +97,8 @@ public class Game
 		{
 			users.add(u);
 			u.joined(this);
+			for(User u2: users)
+				u2.sendLobbyJoin(this, u);
 		}
 		else
 			server.getLog().error("Tried to join user on started game.");
@@ -137,13 +137,13 @@ public class Game
 		{
 			if(users.indexOf(user) != next)
 			{
-				server.getLog().log("User tried to set whose turn it isn't");
+				server.getLog().log("User (" + users.indexOf(user) + ") tried to set whose turn it isn't (" + (int)next + ")");
 			}
 			else
 			{
 				int row = getLeast(column);
 				area[column][row] = (char)users.indexOf(user);
-				win(checkWin());
+				//win(checkWin());
 				for(User u : users)
 					u.placed(column, this, area[column][row]);
 				next++;
@@ -183,10 +183,13 @@ public class Game
 						{
 							ii += is;
 							jj += js;
-							if(area[ii][jj] != u)
+							if(jj < height && jj >= 0 && ii < width && ii >= 0)
 							{
-								found = false;
-								break;
+								if(area[ii][jj] != u)
+								{
+									found = false;
+									break;
+								}
 							}
 						}
 						if(found)
@@ -202,7 +205,7 @@ public class Game
 	
 	private int getLeast(int column)
 	{
-		for(int i = height; i > 0; --i)
+		for(int i = height -1; i >= 0; --i)
 		{
 			if(area[column][i] == 0) return i;
 		}

@@ -68,6 +68,6 @@ WebsocketConnection.prototype.send = function()
 	var command = arguments[0];
 	for(var i = 1; i < arguments.length; i++)
 		if(arguments[i] != undefined) command += ";" + arguments[i];
-	if(debug) console.log("Sending:\""+command+"\"");
+	console.log("Sending:\""+command+"\"");
 	if(this.socket != null) this.socket.send(command);
 };

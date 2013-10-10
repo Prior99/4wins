@@ -18,13 +18,13 @@ function Symbol(pos, player, dim, ctx, f)
 	}
 	else if(player == 2)
 	{
-		this.color = "#A424FF";
-		this.color2 = "#6200A9";
+		this.color = "#FF2525";
+		this.color2 = "#B30000";
 	}
 	else if(player == 3)
 	{
-		this.color = "#FF2525";
-		this.color2 = "#B30000";
+		this.color = "#A424FF";
+		this.color2 = "#6200A9";
 	}
 	else if(player == 4)
 	{

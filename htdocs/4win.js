@@ -4,8 +4,9 @@
  ** 2013 By Prior (Frederick Gnodtke)
  **
  **/
-function FourWins(width, height)
+function FourWins(width, height, gameO)
 {
+	this.gameO = gameO;
 	var self = this; //Forward to call this from within functions
 	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo("body");
 	this.canvas[0].addEventListener("mousemove", function(event)
@@ -21,7 +22,7 @@ function FourWins(width, height)
 	this.interval = setInterval(function() {
 		self.redraw();
 	}, 30);
-	this.p = 0; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+	//this.p = 0; //OBSOLETE! FOR TESTINGPURPOSES ONLY
 }
 
 FourWins.prototype.setMap = function(map)
@@ -32,7 +33,7 @@ FourWins.prototype.setMap = function(map)
 		{
 			console.log(map.charCodeAt(x * this.spread.height + y) - 65);
 			if(map.charCodeAt(x * this.spread.height + y) != 65)
-				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65, true);
+				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65 + 1, true);
 		}
 	}
 }
@@ -62,9 +63,10 @@ FourWins.prototype.onMouseDown = function(event)
 	var x = event.offsetX / this.tileDim.width; 
 	var y = event.offsetY / this.tileDim.height;
 	y = this.lowestY(Math.floor(x));
-	this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
-	this.place(Math.floor(x), y, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
+	//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+	//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
 	console.log({x: Math.floor(x), y: y, arr: this.array, p: this.p % 4 + 1});
+	this.gameO.place(Math.floor(x), y);
 }
 
 FourWins.prototype.place = function(x, y, player, f)
