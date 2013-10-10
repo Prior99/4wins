@@ -3,6 +3,7 @@ function Game()
 	var self = this;
 	this.socket = new WebsocketConnection("localhost:2700");
 	this.socket.connect();
+	this.masks = new Array();
 	wait();
 	this.socket.openSlave = function()
 	{
@@ -46,17 +47,23 @@ Game.prototype.place = function(x, y)
 
 Game.prototype.showGame = function(index)
 {
+	this.clearMasks();
 	var self = this;
 	this.currentIndex = index;
 	this.socket.send("game", index);
+	wait();
 	this.socket.addHandler("game", function(param)
 	{
+		unwait();
 		var width = parseInt(param[1]);
 		var height = parseInt(param[2]);
 		console.log(param);
 		if(self.gui != undefined)
 			self.gui.destroy();
-		self.gui = new FourWins(width, height, self);
+		var mask = $("<div class='mask game'></div>").appendTo("body");
+		self.masks.push(mask);
+		$("<h1>Game</h1>").appendTo(mask);
+		self.gui = new FourWins(width, height, self, mask);
 		self.gui.setMap(param[3]);
 		self.socket.addHandler("placed", function(param)
 		{
@@ -79,6 +86,7 @@ Game.prototype.showGame = function(index)
 	});
 	this.socket.addHandler("lobby", function(param)
 	{
+		unwait();
 		self.displayLobbyMask(param);
 	});
 }
@@ -91,9 +99,11 @@ Game.prototype.createGame = function()
 
 Game.prototype.displayLobbyMask = function(param)
 {
+	this.clearMasks();
 	var self = this;
 	var lobby, users;
 	lobby = $('<div class="lobby"></div>').appendTo("body");
+	this.masks.push(lobby);
 	$("<h1>Lobby</h1>").appendTo(lobby);
 	users = $("<div class='users'></div>").appendTo(lobby);
 	for(var i = 2; i < param.length; i++)
@@ -132,8 +142,10 @@ Game.prototype.waitForLogin = function()
 
 Game.prototype.displayLoginMask = function()
 {
+	this.clearMasks();
 	var mask, username, password, ok, self = this;
 	mask = $("<div class='mask login'></div>").appendTo("body");
+	this.masks.push(mask);
 	$("<h1>Login</h1>").appendTo(mask);
 	username = $("<p></p>").appendTo(mask );
 	$("<label>Username:</label>").appendTo(username);
@@ -160,8 +172,10 @@ Game.prototype.displayLoginMask = function()
 
 Game.prototype.displayRegisterMask = function()
 {
+	this.clearMasks();
 	var mask, username, password, repeat, ok, self = this;
 	mask = $("<div class='mask register'></div>").appendTo("body");
+	this.masks.push(mask);
 	$("<h1>Register</h1>").appendTo(mask);
 	username = $("<p></p>").appendTo(mask );
 	$("<label>Username:</label>").appendTo(username);
@@ -225,6 +239,15 @@ Game.prototype.login = function(username, password)
 			message(ok, "Error", "Login failed. Combination of username and password unknown.", function() { self.displayLoginMask(); });
 		}
 	});
+}
+
+Game.prototype.clearMasks = function()
+{
+	while(this.masks.length > 0)
+	{
+		var m = this.masks.pop();
+		if(m != null) m.remove();
+	}
 }
 
 Game.prototype.loggedIn = function(username, password)

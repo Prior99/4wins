@@ -4,11 +4,11 @@
  ** 2013 By Prior (Frederick Gnodtke)
  **
  **/
-function FourWins(width, height, gameO)
+function FourWins(width, height, gameO, parent)
 {
 	this.gameO = gameO;
 	var self = this; //Forward to call this from within functions
-	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo("body");
+	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo(parent);
 	this.canvas[0].addEventListener("mousemove", function(event)
 	{
 		self.onMouseMove(event);
