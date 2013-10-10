@@ -17,6 +17,25 @@ public class FourServer extends Server
 		userManager = new Usermanager(this);
 		gameManager = new Gamemanager(this);
 		userManager.loadGames();
+		new Thread("Saver")
+		{
+			public void run()
+			{
+				while(!isInterrupted())
+				{
+					try
+					{
+						Thread.sleep(20000);
+					}
+					catch(InterruptedException e)
+					{
+						return;
+					}
+					getGamemanager().save();
+					getUsermanager().save();
+				}
+			}
+		}.start();
 	}
 	
 	@Override

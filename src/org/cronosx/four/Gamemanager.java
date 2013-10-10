@@ -35,14 +35,6 @@ public class Gamemanager
 	{
 		Game g = new Game(amount, 20, 15, server);
 		games.put(amount++, g);
-		new Thread()
-		{
-			public void run()
-			{
-				save();
-				server.getUsermanager().save();
-			}
-		}.start();
 		return g;
 	}
 	

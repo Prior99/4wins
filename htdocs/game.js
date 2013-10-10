@@ -47,7 +47,6 @@ Game.prototype.place = function(x, y)
 
 Game.prototype.showGame = function(index)
 {
-	this.clearMasks();
 	var self = this;
 	this.currentIndex = index;
 	this.socket.send("game", index);
@@ -55,6 +54,7 @@ Game.prototype.showGame = function(index)
 	this.socket.addHandler("game", function(param)
 	{
 		unwait();
+		self.clearMasks();
 		var width = parseInt(param[1]);
 		var height = parseInt(param[2]);
 		console.log(param);
