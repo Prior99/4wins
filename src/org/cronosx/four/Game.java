@@ -142,8 +142,8 @@ public class Game
 			else
 			{
 				int row = getLeast(column);
-				area[column][row] = (char)users.indexOf(user);
-				//win(checkWin());
+				area[column][row] = (char)(users.indexOf(user) + 1);
+				win(checkWin(column, row));
 				for(User u : users)
 					u.placed(column, this, area[column][row]);
 				next++;
@@ -160,46 +160,37 @@ public class Game
 		if(u == null) return;
 		else
 		{
+			server.getLog().log(u.getName() + " HAS WON!");
 			server.getLog().log("Game won: " + id);
 			u.win();
 		}
 	}
 	
-	private User checkWin()
+	private User checkWin(int x, int y)
 	{
-		for(int i = 0; i < width; i++)
-		{
-			for(int j = 0; j < height; j++)
-			{
-				char u = area[i][j];
-				for(int is = -1; is <= 1; is++)
-				{
-					for(int js = -1; js <= 1; js++)
-					{
-						boolean found = true;
-						int ii = i;
-						int jj = j;
-						for(int s = 0; s < 4; s++)
-						{
-							ii += is;
-							jj += js;
-							if(jj < height && jj >= 0 && ii < width && ii >= 0)
-							{
-								if(area[ii][jj] != u)
-								{
-									found = false;
-									break;
-								}
-							}
-						}
-						if(found)
-						{
-							return users.get(u);
-						}
-					}
-				}
-			}
-		}
+		char orig = area[x][y];
+		int r;
+		
+		//Horizontal
+		r = 1;
+		for(int i = 1; x + i < width && area[x + i][y] == orig; i++) r++;
+		for(int i = 1; x - i >= 0    && area[x - i][y] == orig; i++) r++;
+		if(r >= 4) return users.get(orig - 1);
+		//Vertical
+		r = 1;
+		for(int i = 1; y + i < height && area[x][y + i] == orig; i++) r++;
+		for(int i = 1; y - i >= 0     && area[x][y - i] == orig; i++) r++;
+		if(r >= 4) return users.get(orig - 1);
+		//Diagonally left
+		r = 1;
+		for(int i = 1; y + i < height && x - i >= 0    && area[x - i][y + i] == orig; i++) r++;
+		for(int i = 1; y - i >= 0     && x + i < width && area[x + i][y - i] == orig; i++) r++;
+		if(r >= 4) return users.get(orig - 1);
+		//Diagonally right
+		r = 1;
+		for(int i = 1; y + i < height && x + i < width && area[x + i][y + i] == orig; i++) r++;
+		for(int i = 1; y - i >= 0     && x - i >= 0    && area[x - i][y - i] == orig; i++) r++;
+		if(r >= 4) return users.get(orig - 1);
 		return null;
 	}
 	

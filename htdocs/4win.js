@@ -33,7 +33,7 @@ FourWins.prototype.setMap = function(map)
 		{
 			console.log(map.charCodeAt(x * this.spread.height + y) - 65);
 			if(map.charCodeAt(x * this.spread.height + y) != 65)
-				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65 + 1, true);
+				this.place(x, y, map.charCodeAt(x * this.spread.height + y) - 65, true);
 		}
 	}
 }

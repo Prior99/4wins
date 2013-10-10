@@ -63,7 +63,7 @@ Game.prototype.showGame = function(index)
 			if(parseInt(param[1]) == self.currentIndex)
 			{
 				var col = parseInt(param[2]);
-				self.gui.place(col, self.gui.lowestY(col), parseInt(param[3]) + 1);
+				self.gui.place(col, self.gui.lowestY(col), parseInt(param[3]));
 			}
 		});
 	});
