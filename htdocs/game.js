@@ -232,7 +232,8 @@ Game.prototype.login = function(username, password)
 		unwait();
 		if(param[1] == "ok")
 		{
-			message(ok, "Logged in", "You successfully logged in", function() { self.loggedIn(username, password); });
+			self.loggedIn(username, password);
+			//message(ok, "Logged in", "You successfully logged in", function() {  });
 		}
 		else
 		{
