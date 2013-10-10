@@ -21,6 +21,11 @@ public class Gamemanager
 		load();
 	}
 	
+	public void removeGame(Game g)
+	{
+		games.remove(g.getID());
+	}
+	
 	public Game getGame(int id)
 	{
 		return games.get(id);

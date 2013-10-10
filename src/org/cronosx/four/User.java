@@ -128,14 +128,19 @@ public class User implements WebSocketListener
 		online = false;
 	}
 	
-	public void win()
+	public void win(Game g)
 	{
+		games.remove(g);
 		win ++;
+		sendGameList();
 	}
 	
-	public void lose()
+	
+	public void lose(Game g)
 	{
+		games.remove(g);
 		lose ++;
+		sendGameList();
 	}
 
 	public void joined(Game game)
@@ -153,18 +158,18 @@ public class User implements WebSocketListener
 			{
 				sb.append(";").append(g.getID());
 			}
-			socket.send(sb.toString());
+			send(sb.toString());
 		}
 	}
 	
 	/*public void startGame(Game g)
 	{
-		socket.send("start;"+g.getID());
+		send("start;"+g.getID());
 	}*/
 	
 	public void placed(int col, Game g, char u)
 	{
-		socket.send("placed;"+g.getID()+";"+col+";"+(int)u);
+		send("placed;"+g.getID()+";"+col+";"+(int)u);
 	}
 	
 	@Override
@@ -180,7 +185,8 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = server.getGamemanager().getGame(id);
-					g.joinUser(this);
+					if(g != null) g.joinUser(this);
+					else sendGameList();
 				}
 				catch(Exception e)
 				{
@@ -190,14 +196,16 @@ public class User implements WebSocketListener
 			if(param[0].equals("create") && param.length == 1)
 			{
 				Game game = server.getGamemanager().createGame();
-				game.joinUser(this);
+				if(game != null) game.joinUser(this);
 			}
 			if(param[0].equals("start") && param.length == 2)
 			{
 				try
 				{
 					int id = Integer.parseInt(param[1]);
-					server.getGamemanager().getGame(id).start();
+					Game g = server.getGamemanager().getGame(id);
+					if(g != null) g.start();
+					else sendGameList();
 				}
 				catch(Exception e)
 				{
@@ -210,7 +218,9 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					int col = Integer.parseInt(param[2]);
-					server.getGamemanager().getGame(id).place(col, this);
+					Game g = server.getGamemanager().getGame(id);
+					if(g != null) g.place(col, this);
+					else sendGameList();
 				}
 				catch(Exception e)
 				{
@@ -228,10 +238,14 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = server.getGamemanager().getGame(id);
-					if(g.isStarted())
-						sendGame(g);
-					else
-						sendLobby(g);
+					if(g != null)
+					{
+						if(g.isStarted())
+							sendGame(g);
+						else
+							sendLobby(g);
+					}
+					else sendGameList();
 				}
 				catch(Exception e)
 				{
@@ -248,12 +262,12 @@ public class User implements WebSocketListener
 		{
 			sb.append(";").append(u.getName());
 		}
-		socket.send(sb.toString());
+		send(sb.toString());
 	}
 	
 	public void sendLobbyJoin(Game g, User u)
 	{
-		socket.send("lobbyjoin;"+g.getID()+";"+u.getName());
+		send("lobbyjoin;"+g.getID()+";"+u.getName());
 	}
 	
 	public void sendGame(Game g)
@@ -271,17 +285,17 @@ public class User implements WebSocketListener
 		sb.append(";").append(users.length);
 		for(User u : users)
 			sb.append(";").append(u.getName());
-		socket.send(sb.toString());
+		send(sb.toString());
 	}
 	
 	public void sendWin(User u, char id, int x1, int y1, int x2, int y2)
 	{
-		socket.send("win;"+u.getName()+";"+id+";"+x1+";"+y1+";"+x2+";"+y2);
+		send("win;"+u.getName()+";"+id+";"+x1+";"+y1+";"+x2+";"+y2);
 	}
 	
 	public void nextTurn(Game g)
 	{
-		socket.send("turn;"+g.getID());
+		send("turn;"+g.getID());
 	}
 
 	@Override
@@ -298,6 +312,11 @@ public class User implements WebSocketListener
 	{
 		socket = null;
 		logout();
+	}
+	public void send(String s)
+	{
+		if(socket != null)
+			socket.send(s);
 	}
 	
 }

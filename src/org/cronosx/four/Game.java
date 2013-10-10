@@ -157,10 +157,6 @@ public class Game
 			server.getLog().error("Tried to place coin on lobby game.");
 	}
 	
-	private void win(User u)
-	{
-	}
-	
 	private boolean checkLine(int x, int y, int deltax, int deltay, char c)
 	{
 		int r;
@@ -202,9 +198,14 @@ public class Game
 		{
 			User u = users.get(orig - 1);
 			server.getLog().log(u.getName() + " HAS WON!");
+			server.getGamemanager().removeGame(this);
 			server.getLog().log("Game won: " + id);
-			u.win();
-			for(User u2 : users) u2.sendWin(u, orig, x1, y1, x2, y2);
+			u.win(this);
+			for(User u2 : users) 
+			{
+				if(u2 != u) u2.lose(this);
+				u2.sendWin(u, orig, x1, y1, x2, y2);
+			}
 		}
 
 	}
