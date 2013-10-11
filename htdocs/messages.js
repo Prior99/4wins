@@ -1,10 +1,11 @@
-var _waitLoader, _waitDiv;
+var _waitLoader, _waitDiv, _waitDark;
 var fail = false;
 var ok = true;
 
 function wait()
 {
-	_waitDiv = $("<div class='wait'></div>").appendTo("body");
+	_waitDark =  $("<div class='dark'></div>").appendTo("body").hide().fadeIn(200);
+	_waitDiv = $("<div class='wait'></div>").appendTo(_waitDark).hide().fadeIn(300);
 	_waitLoader = new Loader(200, 200);
 	_waitLoader.appendTo(_waitDiv);
 	_waitLoader.start();
@@ -12,13 +13,15 @@ function wait()
 
 function unwait()
 {
+	_waitDark.remove();
 	_waitLoader.stop();
 	_waitDiv.remove();
 }
 
 function message(type, head, text, func)
 {
-	var msg =  $("<div class='msg'></div>").appendTo("body");
+	var dark =  $("<div class='dark'></div>").appendTo("body").hide().fadeIn(200);
+	var msg =  $("<div class='msg'></div>").appendTo(dark).fadeIn(300);
 	if(type)
 		msg.addClass("ok");
 	else
@@ -29,6 +32,7 @@ function message(type, head, text, func)
 	button.click(function()
 	{
 		msg.remove();
+		dark.remove();
 		func();
 	});
 }
