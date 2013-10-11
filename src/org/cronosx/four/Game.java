@@ -144,13 +144,16 @@ public class Game
 			else
 			{
 				int row = getLeast(column);
-				area[column][row] = (char)(users.indexOf(user) + 1);
-				checkWin(column, row);
-				for(User u : users)
-					u.placed(column, this, area[column][row]);
-				next++;
-				next = (char)(next % users.size());
-				users.get(next).nextTurn(this);
+				if(column >= 0 && column < width && row >= 0 && row < height)
+				{
+					area[column][row] = (char)(users.indexOf(user) + 1);
+					checkWin(column, row);
+					for(User u : users)
+						u.placed(column, this, area[column][row]);
+					next++;
+					next = (char)(next % users.size());
+					users.get(next).nextTurn(this);
+				}
 			}
 		}
 		else

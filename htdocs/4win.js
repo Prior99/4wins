@@ -87,8 +87,8 @@ FourWins.prototype.destroy = function()
  */
 FourWins.prototype.onMouseMove = function(event)
 {
-	var x = event.clientX / this.tileDim.width; 
-	var y = event.clientY / this.tileDim.height;
+	var x = (event.clientX - this.canvas.offset().left) / this.tileDim.width; 
+	var y = (event.clientY - this.canvas.offset().top) / this.tileDim.height;
 	this.selected.x = Math.floor(x);
 	this.selected.y = Math.floor(y);
 }
@@ -98,8 +98,8 @@ FourWins.prototype.onMouseMove = function(event)
  */
 FourWins.prototype.onMouseDown = function(event)
 {
-	var x = event.clientX / this.tileDim.width; 
-	var y = event.clientY / this.tileDim.height;
+	var x = (event.clientX - this.canvas.offset().left) / this.tileDim.width; 
+	var y = (event.clientY - this.canvas.offset().top) / this.tileDim.height;
 	y = this.lowestY(Math.floor(x));
 	//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
 	//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY

@@ -19,7 +19,6 @@ Game.prototype.start = function()
 	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
 	$('<div class="header"></div>').appendTo(wrapper);
 	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
-	this.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(this.gamesw).append("<h1>Games</h1>"));
 	this.parent = $("<div class='content'></div>").appendTo(wrapper);
 	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
 	this.socket.send("games");
@@ -27,7 +26,8 @@ Game.prototype.start = function()
 	this.socket.addHandler("games", function(param)
 	{
 		unwait();
-		self.games.html("");
+		self.gamesw.html("");
+		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
 		for(var i = 1; i < param.length; i++)
 		{
 			var btn = $("<a href='#'>Game #"+param[i]+"</a>").click(function()
