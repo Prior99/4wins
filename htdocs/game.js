@@ -135,9 +135,12 @@ Game.prototype.displayLobbyMask = function(param)
 	this.masks.push(lobby);
 	$("<h1>Lobby</h1>").appendTo(lobby);
 	users = $("<div class='users'></div>").appendTo(lobby);
-	for(var i = 2; i < param.length; i++)
+	var table = $("<table></table>").appendTo(lobby);
+	$("<tr class='head'></tr>").append("<td width=300>Name</td>").append("<td>Won</td>").append("<td>Lost</td>").appendTo(table);
+	for(var i = 2; i < param.length; i+=3)
 	{
-		$("<p>" + param[i] + "</p>").appendTo(users);
+		$("<tr></tr>").append("<td>" + param[i] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td>" + param[i + 1] + "</td>").appendTo(table);
+		//$("<p>" + param[i] + "</p>").appendTo(users);
 	}
 	$('<button>Start Game</button>').appendTo(lobby).click(function() {
 		self.socket.send("start", param[1]);
@@ -145,7 +148,8 @@ Game.prototype.displayLobbyMask = function(param)
 	this.socket.addHandler("lobbyjoin", function(param2) {
 		if(parseInt(param2[1]) == parseInt(param[1]))
 		{
-			$("<p>" + param2[2] + "</p>").appendTo(users);
+			$("<tr></tr>").append("<td>" + param2[2] + "</td>").append("<td>" + param2[4] + "</td>").append("<td>" + param2[3] + "</td>").appendTo(table);
+			
 		}
 	});
 }

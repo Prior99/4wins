@@ -9,12 +9,12 @@ function FourWins(width, height, gameO, parent)
 	this.gameO = gameO;
 	var self = this; //Forward to call this from within functions
 	this.canvas = $("<canvas id='c' width='" + (width * 40) + "' height='" + (height * 40) + "' style='border: 1px solid #000'></canvas>").appendTo(parent);
-	this.canvas[0].addEventListener("mousemove", function(event)
+	this.canvas.mousemove(function(event)
 	{
 		event.preventDefault();
 		self.onMouseMove(event);
 	});
-	this.canvas[0].addEventListener("mousedown", function(event)
+	this.canvas.mousedown(function(event)
 	{
 		event.preventDefault();
 		self.onMouseDown(event);
@@ -82,13 +82,24 @@ FourWins.prototype.destroy = function()
 	clearInterval(this.interval);
 }
 
+function normalizeEvent(event) 
+{	
+	if(!event.offsetX) 
+	{
+		event.offsetX = (event.pageX - $(event.target).offset().left);
+		event.offsetY = (event.pageY - $(event.target).offset().top);
+	}
+	return event;
+};
+
 /*
  *	Called when the user moved the mouse over the GameArea
  */
 FourWins.prototype.onMouseMove = function(event)
 {
-	var x = (event.clientX - this.canvas.offset().left) / this.tileDim.width; 
-	var y = (event.clientY - this.canvas.offset().top) / this.tileDim.height;
+	event = normalizeEvent(event);
+	var x = event.offsetX / this.tileDim.width; 
+	var y = event.offsetY / this.tileDim.height;
 	this.selected.x = Math.floor(x);
 	this.selected.y = Math.floor(y);
 }
@@ -98,8 +109,10 @@ FourWins.prototype.onMouseMove = function(event)
  */
 FourWins.prototype.onMouseDown = function(event)
 {
-	var x = (event.clientX - this.canvas.offset().left) / this.tileDim.width; 
-	var y = (event.clientY - this.canvas.offset().top) / this.tileDim.height;
+	event = normalizeEvent(event);
+	var x = event.offsetX / this.tileDim.width; 
+	var y = event.offsetY / this.tileDim.height;
+	console.log(event);
 	y = this.lowestY(Math.floor(x));
 	//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
 	//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY

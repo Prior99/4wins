@@ -261,14 +261,14 @@ public class User implements WebSocketListener
 		StringBuilder sb = new StringBuilder("lobby;"+g.getID());
 		for(User u : g.getUsers())
 		{
-			sb.append(";").append(u.getName());
+			sb.append(";").append(u.getName()).append(";").append(u.getLosses()).append(";").append(u.getWins());
 		}
 		send(sb.toString());
 	}
 	
 	public void sendLobbyJoin(Game g, User u)
 	{
-		send("lobbyjoin;"+g.getID()+";"+u.getName());
+		send("lobbyjoin;"+g.getID()+";"+u.getName()+";"+u.getLosses()+";"+u.getWins());
 	}
 	
 	public void sendGame(Game g)
