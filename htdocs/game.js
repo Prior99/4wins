@@ -136,20 +136,29 @@ Game.prototype.displayLobbyMask = function(param)
 	$("<h1>Lobby</h1>").appendTo(lobby);
 	users = $("<div class='users'></div>").appendTo(lobby);
 	var table = $("<table></table>").appendTo(lobby);
+	var usersd = $("<span>0/4 users (at least 2 needed)</span>").appendTo(lobby.append("<br>"));
 	$("<tr class='head'></tr>").append("<td width=300>Name</td>").append("<td>Won</td>").append("<td>Lost</td>").appendTo(table);
+	var users = 0;
+	var btn = $('<button>Start Game</button>').attr('disabled', true);
 	for(var i = 2; i < param.length; i+=3)
 	{
 		$("<tr></tr>").append("<td>" + param[i] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td>" + param[i + 1] + "</td>").appendTo(table);
-		//$("<p>" + param[i] + "</p>").appendTo(users);
+		users ++;
+		usersd.html(users+"/4 users (at least 2 needed)");
+		if(users >= 2 && users <=4) btn.attr('disabled', false);
+		else  btn.attr('disabled', true);
 	}
-	$('<button>Start Game</button>').appendTo(lobby).click(function() {
+	btn.appendTo(lobby.append("<br>").append("<br>")).click(function() {
 		self.socket.send("start", param[1]);
 	});
 	this.socket.addHandler("lobbyjoin", function(param2) {
 		if(parseInt(param2[1]) == parseInt(param[1]))
 		{
 			$("<tr></tr>").append("<td>" + param2[2] + "</td>").append("<td>" + param2[4] + "</td>").append("<td>" + param2[3] + "</td>").appendTo(table);
-			
+			users ++;
+			if(users >= 2) btn.attr('disabled', false);
+			else  btn.attr('disabled', true);
+			usersd.html(users+"/4 users (at least 2 needed)");
 		}
 	});
 }

@@ -186,7 +186,7 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = server.getGamemanager().getGame(id);
-					if(g != null) g.joinUser(this);
+					if(g != null && g.getUsers().length < 4) g.joinUser(this);
 					else sendGameList();
 				}
 				catch(Exception e)
