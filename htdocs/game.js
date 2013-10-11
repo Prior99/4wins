@@ -4,6 +4,11 @@ function Game()
 	this.socket = new WebsocketConnection("localhost:2700");
 	this.socket.connect();
 	this.masks = new Array();
+	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
+	$('<div class="header"></div>').appendTo(wrapper);
+	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
+	this.parent = $("<div class='content'></div>").appendTo(wrapper);
+	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
 	wait();
 	this.socket.openSlave = function()
 	{
@@ -16,19 +21,36 @@ Game.prototype.start = function()
 {
 	var self = this;
 	console.log("Started!");
-	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
-	$('<div class="header"></div>').appendTo(wrapper);
-	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
-	this.parent = $("<div class='content'></div>").appendTo(wrapper);
-	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
 	this.socket.send("games");
 	wait();
 	this.socket.addHandler("games", function(param)
 	{
 		unwait();
 		self.gamesw.html("");
+		var user = $('<div class="box"></div>').append("<h1>User</h1>").appendTo(self.gamesw);
+		var won = parseInt(param[1]);
+		var lost = parseInt(param[2]);
+		var games = won +lost;
+		var wonp = (won /games) * 100;
+		var lostp = (lost /games) * 100;
+		var time = (new Date().getTime() - parseInt(param[3])*1000) / 1000;
+		console.log(time);
+		var days = time / (24 * 60 * 60);
+		time = time % (24 * 60 * 60);
+		var hours = time / (60 * 60);
+		time = time % (60 * 60);
+		var minutes = time / 60;
+		minutes = minutes % 60;
+		time = time % 60;
+		var seconds = time;
+		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m, " + seconds.toFixed(0) + " s";
+		user.append("<p>Name: " + param[4] + "</p>");
+		user.append("<p>Won: " + won + " (" + wonp.toFixed(0) + "%)</p>");
+		user.append("<p>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</p>");
+		user.append("<p>Games: " + games + "</p>");
+		user.append("<p>Since: " + since + "</p>");
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
-		for(var i = 1; i < param.length; i++)
+		for(var i = 5; i < param.length; i++)
 		{
 			var btn = $("<a href='#'>Game #"+param[i]+"</a>").click(function()
 			{
@@ -45,7 +67,6 @@ Game.prototype.start = function()
 			self.socket.send("join", id.val());
 		});
 	});
-	message(ok, "Game Over!", "Player  has won the game!", function() {});
 };
 
 Game.prototype.place = function(x, y)
@@ -246,6 +267,8 @@ Game.prototype.login = function(username, password)
 		else
 		{
 			message(ok, "Error", "Login failed. Combination of username and password unknown.", function() { self.displayLoginMask(); });
+			eraseCookie("username");
+			eraseCookie("password");
 		}
 	});
 }

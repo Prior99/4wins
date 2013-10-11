@@ -153,7 +153,7 @@ public class User implements WebSocketListener
 	{
 		if(socket != null)
 		{
-			StringBuilder sb = new StringBuilder("games");
+			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName());
 			for(Game g : games)
 			{
 				sb.append(";").append(g.getID());
@@ -171,6 +171,7 @@ public class User implements WebSocketListener
 	{
 		send("placed;"+g.getID()+";"+col+";"+(int)u);
 	}
+	
 	
 	@Override
 	public void onMessage(String s, WebSocket origin)
