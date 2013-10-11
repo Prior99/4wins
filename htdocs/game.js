@@ -16,7 +16,12 @@ Game.prototype.start = function()
 {
 	var self = this;
 	console.log("Started!");
-	this.games = $('<div class="games"></div>').appendTo("body");
+	//var wrapper = $('<div class="wrapper></div>"').appendTo("");
+	$('<div class="header"></div>').appendTo("body");
+	this.gamesw = $('<div class="games"></div>').appendTo("body");
+	this.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(this.gamesw).append("<h1>Games</h1>"));
+	this.parent = $("<div class='content'></div>").appendTo("body");
+	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo("body");
 	this.socket.send("games");
 	wait();
 	this.socket.addHandler("games", function(param)
@@ -25,16 +30,18 @@ Game.prototype.start = function()
 		self.games.html("");
 		for(var i = 1; i < param.length; i++)
 		{
-			var btn = $("<button>Game #"+param[i]+"</button>").appendTo(self.games).click(function()
+			var btn = $("<a href='#'>Game #"+param[i]+"</a>").click(function()
 			{
 				self.showGame(this.index);
-			})[0].index = param[i];
+			}).appendTo($('<li></li>').appendTo(self.games))[0].index = param[i];
 		}
-		$("<button>Create new Game</button>").appendTo(self.games).click(function(){
+		var create = $('<div class="box"></div>').append("<h1>Create a Game</h1>").appendTo(self.gamesw);
+		$("<button>Create new Game</button>").appendTo(create).click(function(){
 			self.createGame();
 		});
-		var id = $("<input type='text' />").appendTo(self.games);
-		$("<button>Join</button>").appendTo(self.games).click(function() {
+		var join = $('<div class="box"></div>').append("<h1>Join a Game</h1>").appendTo(self.gamesw);
+		var id = $("<input type='text' />").appendTo(join);
+		$("<button>Join</button>").appendTo(join).click(function() {
 			self.socket.send("join", id.val());
 		});
 	});
@@ -60,7 +67,7 @@ Game.prototype.showGame = function(index)
 		console.log(param);
 		if(self.gui != undefined)
 			self.gui.destroy();
-		var mask = $("<div class='mask game'></div>").appendTo("body");
+		var mask = $("<div class='mask game'></div>").appendTo(self.parent);
 		self.masks.push(mask);
 		$("<h1>Game</h1>").appendTo(mask);
 		self.gui = new FourWins(width, height, self, mask);
@@ -102,7 +109,7 @@ Game.prototype.displayLobbyMask = function(param)
 	this.clearMasks();
 	var self = this;
 	var lobby, users;
-	lobby = $('<div class="lobby"></div>').appendTo("body");
+	lobby = $('<div class="lobby"></div>').appendTo(this.parent);
 	this.masks.push(lobby);
 	$("<h1>Lobby</h1>").appendTo(lobby);
 	users = $("<div class='users'></div>").appendTo(lobby);
@@ -144,7 +151,7 @@ Game.prototype.displayLoginMask = function()
 {
 	this.clearMasks();
 	var mask, username, password, ok, self = this;
-	mask = $("<div class='mask login'></div>").appendTo("body");
+	mask = $("<div class='mask login'></div>").appendTo(this.parent);
 	this.masks.push(mask);
 	$("<h1>Login</h1>").appendTo(mask);
 	username = $("<p></p>").appendTo(mask );
@@ -174,7 +181,7 @@ Game.prototype.displayRegisterMask = function()
 {
 	this.clearMasks();
 	var mask, username, password, repeat, ok, self = this;
-	mask = $("<div class='mask register'></div>").appendTo("body");
+	mask = $("<div class='mask register'></div>").appendTo(this.parent);
 	this.masks.push(mask);
 	$("<h1>Register</h1>").appendTo(mask);
 	username = $("<p></p>").appendTo(mask );
