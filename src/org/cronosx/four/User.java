@@ -22,6 +22,12 @@ public class User implements WebSocketListener
 	private FourServer server;
 	private List<Game> games;
 	private List<Integer> tmpGameIDs;
+	private int elo;
+	
+	public int getElo()
+	{
+		return elo;
+	}
 	
 	public User(DataInputStream in, FourServer server) throws IOException
 	{
@@ -35,6 +41,7 @@ public class User implements WebSocketListener
 		registered = in.readInt();
 		loggedIn = in.readInt();
 		online = in.readBoolean();
+		elo = in.readInt();
 		int amount = in.readInt();
 		for(int i = 0; i < amount; i++)
 		{
@@ -60,6 +67,7 @@ public class User implements WebSocketListener
 		registered = (int)(System.currentTimeMillis()/1000);
 		loggedIn = win = lose = 0;
 		online = false;
+		elo = 1000;
 	}
 	
 	public void save(DataOutputStream out) throws IOException
@@ -71,6 +79,7 @@ public class User implements WebSocketListener
 		out.writeInt(registered);
 		out.writeInt(loggedIn);
 		out.writeBoolean(online);
+		out.writeInt(elo);
 		out.writeInt(games.size());
 		for(Game game : games)
 			out.writeInt(game.getID());
@@ -128,16 +137,18 @@ public class User implements WebSocketListener
 		online = false;
 	}
 	
-	public void win(Game g)
+	public void win(Game g, int elo)
 	{
+		this.elo = elo;
 		games.remove(g);
 		win ++;
 		sendGameList();
 	}
 	
 	
-	public void lose(Game g)
+	public void lose(Game g, int elo)
 	{
+		this.elo = elo;
 		games.remove(g);
 		lose ++;
 		sendGameList();
@@ -153,7 +164,7 @@ public class User implements WebSocketListener
 	{
 		if(socket != null)
 		{
-			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName());
+			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName()+";"+this.getElo());
 			for(Game g : games)
 			{
 				sb.append(";").append(g.getID());
@@ -186,7 +197,7 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = server.getGamemanager().getGame(id);
-					if(g != null && g.getUsers().length < 4) g.joinUser(this);
+					if(g != null && (g.getUsers()[0] == null ||  g.getUsers()[1] == null)) g.joinUser(this);
 					else sendGameList();
 				}
 				catch(Exception e)
@@ -251,6 +262,7 @@ public class User implements WebSocketListener
 				catch(Exception e)
 				{
 					server.getLog().error("This is not a number");
+					e.printStackTrace();
 				}
 			}
 		}
@@ -261,14 +273,15 @@ public class User implements WebSocketListener
 		StringBuilder sb = new StringBuilder("lobby;"+g.getID());
 		for(User u : g.getUsers())
 		{
-			sb.append(";").append(u.getName()).append(";").append(u.getLosses()).append(";").append(u.getWins());
+			if(u != null)
+			sb.append(";").append(u.getName()).append(";").append(u.getLosses()).append(";").append(u.getWins()).append(";").append(u.getElo());
 		}
 		send(sb.toString());
 	}
 	
 	public void sendLobbyJoin(Game g, User u)
 	{
-		send("lobbyjoin;"+g.getID()+";"+u.getName()+";"+u.getLosses()+";"+u.getWins());
+		send("lobbyjoin;"+g.getID()+";"+u.getName()+";"+u.getLosses()+";"+u.getWins()+";"+u.getElo());
 	}
 	
 	public void sendGame(Game g)

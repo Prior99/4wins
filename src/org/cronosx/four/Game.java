@@ -12,7 +12,8 @@ public class Game
 	private int width;
 	private int height;
 	private char[][] area;
-	private List<User> users;
+	private User[] users;
+	private double[] elo;
 	private FourServer server;
 	private boolean started;
 	private char next;
@@ -22,7 +23,8 @@ public class Game
 	public Game(int id, int width, int height, FourServer server)
 	{
 		this.server = server;
-		users = new LinkedList<User>();
+		users = new User[2];
+		elo = new double[2];
 		this.width = width;
 		this.height = height;
 		area = new char[width][height];
@@ -37,7 +39,10 @@ public class Game
 		id = in.readInt();
 		width = in.readInt();
 		height = in.readInt();
-		users = new LinkedList<User>();
+		users = new User[2];
+		elo = new double[2];
+		elo[0] = in.readDouble();
+		elo[1] = in.readDouble();
 		area = new char[width][height];
 		for(int i = 0; i < width; i++)
 		{
@@ -46,11 +51,13 @@ public class Game
 				area[i][j] = in.readChar();
 			}
 		}
-		int amount = in.readInt();
-		for(int i = 0; i < amount; i++)
-		{
-			users.add(server.getUsermanager().getUser(in.readUTF()));
-		}
+		//int amount = in.readInt();
+		String s = in.readUTF();
+		if(s.length() != 0)
+			users[0] = server.getUsermanager().getUser(s);
+		s = in.readUTF();
+		if(s.length() != 0)
+			users[1] = server.getUsermanager().getUser(s);
 		started = in.readBoolean();
 	}
 	
@@ -64,6 +71,8 @@ public class Game
 		out.writeInt(id);
 		out.writeInt(width);
 		out.writeInt(height);
+		out.writeDouble(elo[0]);
+		out.writeDouble(elo[1]);
 		for(int i = 0; i < width; i++)
 		{
 			for(int j = 0; j < height; j++)
@@ -71,11 +80,14 @@ public class Game
 				out.writeChar(area[i][j]);
 			}
 		}
-		out.writeInt(users.size());
-		for(User u:users)
-		{
-			out.writeUTF(u.getName());
-		}
+		if(users[0] != null) 
+			out.writeUTF(users[0].getName());
+		else 
+			out.writeUTF("");
+		if(users[1] != null) 
+			out.writeUTF(users[1].getName());
+		else 
+			out.writeUTF("");
 		out.writeBoolean(started);
 	}
 	
@@ -97,13 +109,30 @@ public class Game
 	{
 		if(!started)
 		{
-			users.add(u);
-			u.joined(this);
-			for(User u2: users)
-				u2.sendLobbyJoin(this, u);
+			if(users[0] == null || users[1] == null)
+			{
+				if(users[0] == null)
+					users[0] = u;
+				else
+				{
+					users[1] = u;
+					calcElo();
+				}
+				u.joined(this);
+				for(User u2: users)
+					if(u2 != null)u2.sendLobbyJoin(this, u);
+			}
+			else
+				server.getLog().error("Tried to join user on a full lobby");
 		}
 		else
 			server.getLog().error("Tried to join user on started game.");
+	}
+	
+	private void calcElo()
+	{
+		elo[0] = 1/(1 + Math.pow(10, (users[1].getElo() - users[0].getElo()) / 400));
+		elo[1] = 1/(1 + Math.pow(10, (users[0].getElo() - users[1].getElo()) / 400));
 	}
 	
 	public int getWidth()
@@ -123,9 +152,7 @@ public class Game
 	
 	public User[] getUsers()
 	{
-		User[] us = new User[users.size()];
-		users.toArray(us);
-		return us;
+		return users;
 	}
 	
 	public int getID()
@@ -137,22 +164,22 @@ public class Game
 	{
 		if(started)
 		{
-			if(users.indexOf(user) != next)
+			if(users[next] == user)
 			{
-				server.getLog().log("User (" + users.indexOf(user) + ") tried to set whose turn it isn't (" + (int)next + ")");
+				server.getLog().log("User tried to set whose turn it isn't (" + (int)next + ")");
 			}
 			else
 			{
 				int row = getLeast(column);
 				if(column >= 0 && column < width && row >= 0 && row < height)
 				{
-					area[column][row] = (char)(users.indexOf(user) + 1);
+					area[column][row] = (char)(next + 1);
 					checkWin(column, row);
 					for(User u : users)
 						u.placed(column, this, area[column][row]);
 					next++;
-					next = (char)(next % users.size());
-					users.get(next).nextTurn(this);
+					next = (char)(next % 2);
+					users[next].nextTurn(this);
 				}
 			}
 		}
@@ -199,18 +226,29 @@ public class Game
 				checkLine(x, y, 1, 1, orig) ||
 				checkLine(x, y, -1, 1, orig))
 		{
-			User u = users.get(orig - 1);
-			server.getLog().log(u.getName() + " HAS WON!");
 			server.getGamemanager().removeGame(this);
-			server.getLog().log("Game won: " + id);
-			u.win(this);
-			for(User u2 : users) 
+
+			int elo1, elo2;
+			
+			if(orig - 1 == 0)
 			{
-				if(u2 != u) u2.lose(this);
-				u2.sendWin(u, orig, x1, y1, x2, y2);
+				elo1 = (int)Math.round(users[0].getElo() + 15 * (1 - elo[0]));
+				elo2 = (int)Math.round(users[1].getElo() + 15 * (0 - elo[1]));
+				users[0].win(this, elo1);
+				users[1].lose(this, elo2);
+				users[0].sendWin(users[0], orig, x1, y1, x2, y2);
+				users[1].sendWin(users[0], orig, x1, y1, x2, y2);
+			}
+			else
+			{
+				elo1 = (int)Math.round(users[0].getElo() + 15 * (0 - elo[0]));
+				elo2 = (int)Math.round(users[1].getElo() + 15 * (1 - elo[1]));
+				users[0].lose(this, elo1);
+				users[1].win(this, elo2);
+				users[0].sendWin(users[1], orig, x1, y1, x2, y2);
+				users[1].sendWin(users[1], orig, x1, y1, x2, y2);
 			}
 		}
-
 	}
 	
 	private int getLeast(int column)

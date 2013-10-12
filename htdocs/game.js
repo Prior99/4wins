@@ -8,7 +8,7 @@ function Game()
 	$('<div class="header"></div>').appendTo(wrapper);
 	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
 	this.parent = $("<div class='content'></div>").appendTo(wrapper);
-	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
+	//$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
 	wait("Connecting...");
 	this.socket.openSlave = function()
 	{
@@ -45,12 +45,13 @@ Game.prototype.start = function()
 		var seconds = time;
 		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m, " + seconds.toFixed(0) + " s";
 		user.append("<p>Name: " + param[4] + "</p>");
+		user.append("<p>Elo: " + param[5] + "</p>");
 		user.append("<p>Won: " + won + " (" + wonp.toFixed(0) + "%)</p>");
 		user.append("<p>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</p>");
 		user.append("<p>Games: " + games + "</p>");
 		user.append("<p>Since: " + since + "</p>");
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
-		for(var i = 5; i < param.length; i++)
+		for(var i = 6; i < param.length; i++)
 		{
 			var btn = $("<a href='#'>Game #"+param[i]+"</a>").click(function()
 			{
@@ -137,12 +138,12 @@ Game.prototype.displayLobbyMask = function(param)
 	users = $("<div class='users'></div>").appendTo(lobby);
 	var table = $("<table></table>").appendTo(lobby);
 	var usersd = $("<span>0/4 users (at least 2 needed)</span>").appendTo(lobby.append("<br>"));
-	$("<tr class='head'></tr>").append("<td width=300>Name</td>").append("<td>Won</td>").append("<td>Lost</td>").appendTo(table);
+	$("<tr class='head'></tr>").append("<td width=300>Name</td>").append("<td>Won</td>").append("<td>Lost</td>").append("<td>Elo</td>").appendTo(table);
 	var users = 0;
 	var btn = $('<button>Start Game</button>').attr('disabled', true);
-	for(var i = 2; i < param.length; i+=3)
+	for(var i = 2; i < param.length; i+=4)
 	{
-		$("<tr></tr>").append("<td>" + param[i] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td>" + param[i + 1] + "</td>").appendTo(table);
+		$("<tr></tr>").append("<td>" + param[i] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td>" + param[i + 1] + "</td>").append("<td>" + param[i + 3] + "</td>").appendTo(table);
 		users ++;
 		usersd.html(users+"/4 users (at least 2 needed)");
 		if(users >= 2 && users <=4) btn.attr('disabled', false);
@@ -154,11 +155,11 @@ Game.prototype.displayLobbyMask = function(param)
 	this.socket.addHandler("lobbyjoin", function(param2) {
 		if(parseInt(param2[1]) == parseInt(param[1]))
 		{
-			$("<tr></tr>").append("<td>" + param2[2] + "</td>").append("<td>" + param2[4] + "</td>").append("<td>" + param2[3] + "</td>").appendTo(table);
+			$("<tr></tr>").append("<td>" + param2[2] + "</td>").append("<td>" + param2[4] + "</td>").append("<td>" + param2[3] + "</td>").append("<td>" + param2[5] + "</td>").appendTo(table);
 			users ++;
 			if(users >= 2) btn.attr('disabled', false);
 			else  btn.attr('disabled', true);
-			usersd.html(users+"/4 users (at least 2 needed)");
+			usersd.html(users+"/2 users");
 		}
 	});
 }

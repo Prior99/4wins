@@ -40,7 +40,7 @@ public class Usermanager
 		catch(Exception e)
 		{
 			server.getLog().error("Load failed!");
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 	
