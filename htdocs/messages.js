@@ -2,10 +2,10 @@ var _waitLoader, _waitDiv, _waitDark;
 var fail = false;
 var ok = true;
 
-function wait()
+function wait(msg)
 {
 	_waitDark =  $("<div class='dark'></div>").appendTo("body").hide().fadeIn(200);
-	_waitDiv = $("<div class='wait'></div>").appendTo(_waitDark).hide().fadeIn(300);
+	_waitDiv = $("<div class='wait'></div>").appendTo(_waitDark).hide().fadeIn(300).append(msg).append("<br>");
 	_waitLoader = new Loader(200, 200);
 	_waitLoader.appendTo(_waitDiv);
 	_waitLoader.start();

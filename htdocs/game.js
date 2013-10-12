@@ -9,7 +9,7 @@ function Game()
 	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
 	this.parent = $("<div class='content'></div>").appendTo(wrapper);
 	$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
-	wait();
+	wait("Connecting...");
 	this.socket.openSlave = function()
 	{
 		unwait();
@@ -22,7 +22,7 @@ Game.prototype.start = function()
 	var self = this;
 	console.log("Started!");
 	this.socket.send("games");
-	wait();
+	wait("Waiting for games");
 	this.socket.addHandler("games", function(param)
 	{
 		unwait();
@@ -79,7 +79,7 @@ Game.prototype.showGame = function(index)
 	var self = this;
 	this.currentIndex = index;
 	this.socket.send("game", index);
-	wait();
+	wait("Waiting for game...");
 	this.socket.addHandler("game", function(param)
 	{
 		unwait();
@@ -123,7 +123,7 @@ Game.prototype.showGame = function(index)
 Game.prototype.createGame = function()
 {
 	this.socket.send("create");
-	wait();
+	wait("Waiting for creation of game...");
 }
 
 Game.prototype.displayLobbyMask = function(param)
@@ -268,7 +268,7 @@ Game.prototype.login = function(username, password)
 	console.log(username);
 	console.log(password);
 	this.socket.send("login", username, password);
-	wait();
+	wait("Waiting for login...");
 	this.socket.addHandler("login", function(param)
 	{
 		unwait();
@@ -308,7 +308,7 @@ Game.prototype.register = function(username, password)
 	console.log(username);
 	console.log(password);
 	this.socket.send("register", username, password);
-	wait();
+	wait("Waiting for register...");
 	this.socket.addHandler("register", function(param)
 	{
 		unwait();
