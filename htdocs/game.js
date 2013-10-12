@@ -43,13 +43,13 @@ Game.prototype.start = function()
 		minutes = minutes % 60;
 		time = time % 60;
 		var seconds = time;
-		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m, " + seconds.toFixed(0) + " s";
-		user.append("<p>Name: " + param[4] + "</p>");
-		user.append("<p>Elo: " + param[5] + "</p>");
-		user.append("<p>Won: " + won + " (" + wonp.toFixed(0) + "%)</p>");
-		user.append("<p>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</p>");
-		user.append("<p>Games: " + games + "</p>");
-		user.append("<p>Since: " + since + "</p>");
+		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m";
+		user.append("<br>Name: " + param[4] + "<br>");
+		user.append("<b>Elo: " + param[5] + "</b><br>");
+		user.append("Won: " + won + " (" + wonp.toFixed(0) + "%)<br>");
+		user.append("Lost: " + lost + " (" + lostp.toFixed(0) + "%)<br>");
+		user.append("Games: " + games + "<br>");
+		user.append("Since: " + since + "<br>");
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
 		for(var i = 6; i < param.length; i+=2)
 		{

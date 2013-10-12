@@ -102,6 +102,7 @@ div.games div.box
 	padding: 5px;
 	border-radius: 15px 15px 15px 15px;
 	background-color: rgba(255, 255, 255, 0.3);
+	line-height: 1em;
 }
 
 div.games div.box h1
