@@ -100,6 +100,11 @@ public class Game
 		return users[0].getName() + " - " + users[1].getName();
 	}
 	
+	public boolean isNext(User u)
+	{
+		return users[next] == u;
+	}
+	
 	public void start()
 	{
 		if(started)
@@ -111,6 +116,7 @@ public class Game
 			started = true;
 			for(User u : users)
 				u.sendGame(this);
+			users[0].nextTurn(this);
 		}
 	}
 	
@@ -173,7 +179,7 @@ public class Game
 	{
 		if(started)
 		{
-			if(users[next] == user)
+			if(users[next] != user)
 			{
 				server.getLog().log("User tried to set whose turn it isn't (" + (int)next + ")");
 			}

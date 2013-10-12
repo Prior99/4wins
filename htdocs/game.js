@@ -91,6 +91,7 @@ Game.prototype.showGame = function(index)
 		$("<h1>Game</h1>").appendTo(mask);
 		self.gui = new FourWins(width, height, self, mask);
 		self.gui.setMap(param[3]);
+		if(param[4] == "true") self.gui.nextTurn();
 		self.socket.addHandler("placed", function(param)
 		{
 			if(parseInt(param[1]) == self.currentIndex)
@@ -108,6 +109,13 @@ Game.prototype.showGame = function(index)
 			var username = param[1];
 			self.gui.win(x1, y1, x2, y2);
 			message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
+		});
+		self.socket.addHandler("turn", function(param)
+		{
+			if(parseInt(param[1]) == self.currentIndex)
+			{
+				self.gui.nextTurn();
+			}
 		});
 	});
 	this.socket.addHandler("lobby", function(param)
@@ -141,7 +149,7 @@ Game.prototype.displayLobbyMask = function(param)
 	{
 		$("<tr></tr>").append("<td>" + param[i] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td>" + param[i + 1] + "</td>").append("<td>" + param[i + 3] + "</td>").appendTo(table);
 		users ++;
-		usersd.html(users+"/4 users (at least 2 needed)");
+		usersd.html(users+"/2 users");
 		if(users >= 2 && users <=4) btn.attr('disabled', false);
 		else  btn.attr('disabled', true);
 	}

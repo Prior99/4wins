@@ -309,6 +309,7 @@ public class User implements WebSocketListener
 				sb.append((char)('A' + area[i][j])+"");
 			}
 		}
+		sb.append(";").append(g.isNext(this));
 		sb.append(";").append(users.length);
 		for(User u : users)
 			sb.append(";").append(u.getName());

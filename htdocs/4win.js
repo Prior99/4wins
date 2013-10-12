@@ -26,6 +26,12 @@ function FourWins(width, height, gameO, parent)
 	}, 30);
 	this.wins = {has : false};
 	//this.p = 0; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+	this.enabled = false;
+}
+
+FourWins.prototype.nextTurn = function()
+{	
+	this.enabled = true;
 }
 
 FourWins.prototype.win = function(x1, y1, x2, y2)
@@ -97,11 +103,14 @@ function normalizeEvent(event)
  */
 FourWins.prototype.onMouseMove = function(event)
 {
-	event = normalizeEvent(event);
-	var x = event.offsetX / this.tileDim.width; 
-	var y = event.offsetY / this.tileDim.height;
-	this.selected.x = Math.floor(x);
-	this.selected.y = Math.floor(y);
+	if(this.enabled)
+	{
+		event = normalizeEvent(event);
+		var x = event.offsetX / this.tileDim.width; 
+		var y = event.offsetY / this.tileDim.height;
+		this.selected.x = Math.floor(x);
+		this.selected.y = Math.floor(y);
+	}
 }
 
 /*
@@ -109,14 +118,18 @@ FourWins.prototype.onMouseMove = function(event)
  */
 FourWins.prototype.onMouseDown = function(event)
 {
-	event = normalizeEvent(event);
-	var x = event.offsetX / this.tileDim.width; 
-	var y = event.offsetY / this.tileDim.height;
-	console.log(event);
-	y = this.lowestY(Math.floor(x));
-	//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
-	//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
-	this.gameO.place(Math.floor(x), y);
+	if(this.enabled)
+	{
+		event = normalizeEvent(event);
+		var x = event.offsetX / this.tileDim.width; 
+		var y = event.offsetY / this.tileDim.height;
+		console.log(event);
+		y = this.lowestY(Math.floor(x));
+		//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
+		//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
+		this.gameO.place(Math.floor(x), y);
+		this.enabled = false;
+	}
 }
 
 FourWins.prototype.place = function(x, y, player, f)
@@ -152,7 +165,9 @@ FourWins.prototype.init = function(width, height)
 		gridStrokeSelected : "#FFF043",
 		gridFillSelected : "#FFC13C",
 		gridStrokeNormal : "#FFF043",
-		gridFillNormal : "#FDFFAB"
+		gridFillNormal : "#FDFFAB",
+		gridFillDisabled : "#F1EECE",
+		gridStrokeDisabled : "#CCCD95"
 	};
 	this.symbols = new Array(); //Initialize symbols
 	this.array = new Array(); //Initialize Game Array
@@ -228,20 +243,28 @@ FourWins.prototype.drawTile = function(x, y)
 		reallyHigh = true;
 	x *= this.tileDim.width;
 	y *= this.tileDim.height;
-	if(reallyHigh) 
+	if(this.enabled)
 	{
-		this.ctx.strokeStyle = this.color.gridStrokeReally;
-		this.ctx.fillStyle = this.color.gridFillReally;
-	}
-	else if(high)
-	{
-		this.ctx.strokeStyle = this.color.gridStrokeSelected;
-		this.ctx.fillStyle = this.color.gridFillSelected;
+		if(reallyHigh) 
+		{
+			this.ctx.strokeStyle = this.color.gridStrokeReally;
+			this.ctx.fillStyle = this.color.gridFillReally;
+		}
+		else if(high)
+		{
+			this.ctx.strokeStyle = this.color.gridStrokeSelected;
+			this.ctx.fillStyle = this.color.gridFillSelected;
+		}
+		else
+		{
+			this.ctx.strokeStyle = this.color.gridStrokeNormal;
+			this.ctx.fillStyle = this.color.gridFillNormal;
+		}
 	}
 	else
 	{
-		this.ctx.strokeStyle = this.color.gridStrokeNormal;
-		this.ctx.fillStyle = this.color.gridFillNormal;
+		this.ctx.strokeStyle = this.color.gridStrokeDisabled;
+		this.ctx.fillStyle = this.color.gridFillDisabled;
 	}
 	
 	this.ctx.beginPath();
