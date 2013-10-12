@@ -20,10 +20,14 @@ public class Game
 	
 	private int x1, x2, y1, y2;
 	
-	public Game(int id, int width, int height, FourServer server)
+	public Game(int id, int width, int height, FourServer server, User u1, User u2)
 	{
-		this.server = server;
 		users = new User[2];
+		users[0] = u1;
+		users[1] = u2;
+		u1.joined(this);
+		u2.joined(this);
+		this.server = server;
 		elo = new double[2];
 		this.width = width;
 		this.height = height;
@@ -89,6 +93,11 @@ public class Game
 		else 
 			out.writeUTF("");
 		out.writeBoolean(started);
+	}
+	
+	public String getName()
+	{
+		return users[0].getName() + " - " + users[1].getName();
 	}
 	
 	public void start()

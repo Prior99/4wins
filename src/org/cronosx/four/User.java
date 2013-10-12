@@ -167,7 +167,7 @@ public class User implements WebSocketListener
 			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName()+";"+this.getElo());
 			for(Game g : games)
 			{
-				sb.append(";").append(g.getID());
+				sb.append(";").append(g.getID()).append(";").append(g.getName());
 			}
 			send(sb.toString());
 		}
@@ -191,7 +191,20 @@ public class User implements WebSocketListener
 		String[] param = s.split(";");
 		if(param.length > 0)
 		{
-			if(param[0].equals("join") && param.length == 2)
+			if(param[0].equals("challenge") && param.length == 2)
+			{
+				User u = server.getUsermanager().getUser(param[1]);
+				if(u != null)
+				{
+					server.getGamemanager().createGame(this, u);
+					sendGameList();
+				}
+				else
+				{
+					send("nouser;"+param[1]);
+				}
+			}
+			/*if(param[0].equals("join") && param.length == 2)
 			{
 				try
 				{
@@ -209,7 +222,7 @@ public class User implements WebSocketListener
 			{
 				Game game = server.getGamemanager().createGame();
 				if(game != null) game.joinUser(this);
-			}
+			}*/
 			if(param[0].equals("start") && param.length == 2)
 			{
 				try

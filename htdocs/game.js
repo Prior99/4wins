@@ -51,21 +51,17 @@ Game.prototype.start = function()
 		user.append("<p>Games: " + games + "</p>");
 		user.append("<p>Since: " + since + "</p>");
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
-		for(var i = 6; i < param.length; i++)
+		for(var i = 6; i < param.length; i+=2)
 		{
-			var btn = $("<a href='#'>Game #"+param[i]+"</a>").click(function()
+			var btn = $("<a href='#'>"+param[i + 1]+"</a>").click(function()
 			{
 				self.showGame(this.index);
 			}).appendTo($('<li></li>').appendTo(self.games))[0].index = param[i];
 		}
-		var create = $('<div class="box"></div>').append("<h1>Create a Game</h1>").appendTo(self.gamesw);
-		$("<button>Create new Game</button>").appendTo(create).click(function(){
-			self.createGame();
-		});
-		var join = $('<div class="box"></div>').append("<h1>Join a Game</h1>").appendTo(self.gamesw);
+		var join = $('<div class="box"></div>').append("<h1>Challenge Player</h1>").appendTo(self.gamesw);
 		var id = $("<input type='text' />").appendTo(join);
-		$("<button>Join</button>").appendTo(join).click(function() {
-			self.socket.send("join", id.val());
+		$("<button>Challenge!</button>").appendTo(join).click(function() {
+			self.socket.send("challenge", id.val());
 		});
 	});
 };

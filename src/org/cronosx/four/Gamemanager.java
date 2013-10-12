@@ -31,9 +31,9 @@ public class Gamemanager
 		return games.get(id);
 	}
 	
-	public Game createGame()
+	public Game createGame(User u1, User u2)
 	{
-		Game g = new Game(amount, 20, 15, server);
+		Game g = new Game(amount, 20, 15, server, u1, u2);
 		games.put(amount++, g);
 		return g;
 	}
