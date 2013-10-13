@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +44,27 @@ public class Usermanager
 			server.getLog().error("Load failed!");
 			//e.printStackTrace();
 		}
+	}
+	
+	public User[] getUsersSorted()
+	{
+		User[] us = new User[users.size()];
+		int i = 0;
+		for(String s : users.keySet())
+		{
+			us[i++] = users.get(s);
+		}
+		Arrays.sort(us, new Comparator<User>()
+		{
+
+			@Override
+			public int compare(User arg0, User arg1)
+			{
+				return arg0.getElo() - arg1.getElo();
+			}
+			
+		});
+		return us;
 	}
 	
 	public void loadGames()

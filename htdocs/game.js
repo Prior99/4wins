@@ -63,8 +63,32 @@ Game.prototype.start = function()
 		$("<button>Challenge!</button>").appendTo(join).click(function() {
 			self.socket.send("challenge", id.val());
 		});
+		$('<div class="box"></div>').append("<h1>Highscore</h1>").append($("<button>View Highscore</button>").click(function () {
+			self.displayHighscore();
+		})).appendTo(self.gamesw);
 	});
 };
+
+Game.prototype.displayHighscore = function()
+{
+	var self = this;
+	this.socket.send("highscore");
+	wait();
+	this.socket.addHandler("highscore", function(param) {
+		unwait();
+		self.clearMasks();
+		var mask = $("<div class='mask highscore'></div>").appendTo(self.parent).append("<h1>Highscore</h1>");
+		self.masks.push(mask);
+		var table = $("<table></table>").appendTo(mask);
+		$("<tr class='head'></tr>").appendTo(table).append("<td>#</td>").append("<td>Name</td>").append("<td>Games won</td>").append("<td>Games lost</td>").append("<td><b>Elo</b></td>");
+		for(var i = 1, j = 1; i < param.length; i += 4, j++)
+		{
+			$("<tr></tr>").appendTo(table).append("<td>" + j + "</td>") .append($("<td></td>").append("<a href='#'>"+param[i]+"</a>").click(function(e) {
+				self.socket.send("challenge", $(e.target).text());
+			})).append("<td>" + param[i + 1] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td><b>" + param[i + 3] + "</b></td>");
+		}
+	});
+}
 
 Game.prototype.place = function(x, y)
 {
