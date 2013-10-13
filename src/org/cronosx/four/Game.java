@@ -65,11 +65,6 @@ public class Game
 		started = in.readBoolean();
 	}
 	
-	public boolean isStarted()
-	{
-		return started;
-	}
-	
 	public void save(DataOutputStream out) throws IOException
 	{
 		out.writeInt(id);
@@ -95,6 +90,12 @@ public class Game
 		out.writeBoolean(started);
 	}
 	
+	public boolean isStarted()
+	{
+		return started;
+	}
+	
+	
 	public String getName()
 	{
 		return users[0].getName() + " - " + users[1].getName();
@@ -113,6 +114,7 @@ public class Game
 		}
 		else
 		{
+			calcElo();
 			started = true;
 			for(User u : users)
 				u.sendGame(this);
@@ -131,7 +133,6 @@ public class Game
 				else
 				{
 					users[1] = u;
-					calcElo();
 				}
 				u.joined(this);
 				for(User u2: users)

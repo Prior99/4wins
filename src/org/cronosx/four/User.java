@@ -227,10 +227,10 @@ public class User implements WebSocketListener
 			if(param[0].equals("highscore") && param.length == 1)
 			{
 				User[] us = server.getUsermanager().getUsersSorted();
-				StringBuilder sb = new StringBuilder("highscore;");
+				StringBuilder sb = new StringBuilder("highscore");
 				for(User u:us)
 				{
-					sb.append(u.getName()).append(";").append(u.getWins()).append(";").append(u.getLosses()).append(";").append(u.getElo());
+					sb.append(";").append(u.getName()).append(";").append(u.getWins()).append(";").append(u.getLosses()).append(";").append(u.getElo());
 				}
 				send(sb.toString());
 			}
