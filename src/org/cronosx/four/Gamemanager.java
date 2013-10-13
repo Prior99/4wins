@@ -44,7 +44,8 @@ public class Gamemanager
 		{
 			DataInputStream in = new DataInputStream(new FileInputStream(new File("games.dat")));
 			amount = in.readInt();
-			for(int i = 0; i < amount; i++)
+			int amt = in.readInt();
+			for(int i = 0; i < amt; i++)
 			{
 				games.put(in.readInt(), new Game(in, server));
 			}
@@ -64,13 +65,14 @@ public class Gamemanager
 		{
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("games.dat")));
 			out.writeInt(amount);
+			out.writeInt(games.size());
 			for(int i : games.keySet())
 			{
 				out.writeInt(i);
 				games.get(i).save(out);
 			}
 			out.close();
-			server.getLog().log(games.size() + " games successfully saved.");
+			server.getLog().log(games.size() + " games successfully saved.", 150);
 		}
 		catch(Exception e)
 		{

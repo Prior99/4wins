@@ -85,7 +85,7 @@ public class Usermanager
 				users.get(s).save(out);
 			}
 			out.close();	
-			server.getLog().log(users.size() + " users successfully saved.");
+			server.getLog().log(users.size() + " users successfully saved.", 150);
 		}
 		catch(Exception e)
 		{

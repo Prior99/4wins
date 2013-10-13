@@ -128,12 +128,12 @@ FourWins.prototype.onMouseDown = function(event)
 		//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
 		//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
 		this.gameO.place(Math.floor(x), y);
-		this.enabled = false;
 	}
 }
 
 FourWins.prototype.place = function(x, y, player, f)
 {
+	this.enabled = false;
 	this.array[x][y] = player;
 	this.symbols.push(new Symbol({x : x, y : y}, player, this.tileDim, this.ctx, f));
 }
