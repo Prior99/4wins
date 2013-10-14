@@ -65,6 +65,7 @@ Game.prototype.start = function()
 		$('<div class="box"></div>').append("<h1>Highscore</h1>").append($("<button>View Highscore</button>").click(function () {
 			self.displayHighscore();
 		})).appendTo(self.gamesw);
+		$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(self.gamesw);
 	});
 };
 
