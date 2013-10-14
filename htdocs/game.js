@@ -79,12 +79,27 @@ Game.prototype.displayHighscore = function()
 		var mask = $("<div class='mask highscore'></div>").appendTo(self.parent).append("<h1>Highscore</h1>");
 		self.masks.push(mask);
 		var table = $("<table></table>").appendTo(mask);
-		$("<tr class='head'></tr>").appendTo(table).append("<td>#</td>").append("<td>Name</td>").append("<td>Games won</td>").append("<td>Games lost</td>").append("<td><b>Elo</b></td>");
+		$("<tr class='head'></tr>").appendTo(table)
+			.append("<td>#</td>")
+			.append("<td>Name</td>")
+			.append("<td>Games won</td>")
+			.append("<td>Games lost</td>")
+			.append("<td><b>Elo</b></td>")
+			.append("<td>Challenge</td>");
 		for(var i = 1, j = 1; i < param.length; i += 4, j++)
 		{
-			$("<tr></tr>").appendTo(table).append("<td>" + j + "</td>") .append($("<td></td>").append("<a href='#'>"+param[i]+"</a>").click(function(e) {
-				self.challenge($(e.target).text());
-			})).append("<td>" + param[i + 1] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td><b>" + param[i + 3] + "</b></td>");
+			function t(n) {
+			$("<tr></tr>").appendTo(table)
+				.append("<td>" + j + "</td>") 
+				.append("<td>"+param[i]+"</td>")
+				.append("<td>" + param[i + 1] + "</td>")
+				.append("<td>" + param[i + 2] + "</td>")
+				.append("<td><b>" + param[i + 3] + "</b></td>")
+				.append($("<td></td>").append("<button>Challenge</button>").click(function(e) {
+					self.challenge(n);
+				}));
+			};
+			t(param[i]);
 		}
 	});
 }
