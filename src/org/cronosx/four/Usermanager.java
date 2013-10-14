@@ -60,7 +60,7 @@ public class Usermanager
 			@Override
 			public int compare(User arg0, User arg1)
 			{
-				return arg0.getElo() - arg1.getElo();
+				return arg1.getElo() - arg0.getElo();
 			}
 			
 		});
