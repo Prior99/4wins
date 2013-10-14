@@ -123,10 +123,7 @@ FourWins.prototype.onMouseDown = function(event)
 		event = normalizeEvent(event);
 		var x = event.offsetX / this.tileDim.width; 
 		var y = event.offsetY / this.tileDim.height;
-		console.log(event);
 		y = this.lowestY(Math.floor(x));
-		//this.p++; //OBSOLETE! FOR TESTINGPURPOSES ONLY
-		//this.place(, this.p % 4 + 1); //OBSOLETE! FOR TESTINGPURPOSES ONLY
 		this.gameO.place(Math.floor(x), y);
 	}
 }

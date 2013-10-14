@@ -34,7 +34,6 @@ Game.prototype.start = function()
 		var wonp = (won /games) * 100;
 		var lostp = (lost /games) * 100;
 		var time = (new Date().getTime() - parseInt(param[3])*1000) / 1000;
-		console.log(time);
 		var days = time / (24 * 60 * 60);
 		time = time % (24 * 60 * 60);
 		var hours = time / (60 * 60);
@@ -61,7 +60,7 @@ Game.prototype.start = function()
 		var join = $('<div class="box"></div>').append("<h1>Challenge Player</h1>").appendTo(self.gamesw);
 		var id = $("<input type='text' />").appendTo(join);
 		$("<button>Challenge!</button>").appendTo(join).click(function() {
-			self.socket.send("challenge", id.val());
+			self.challenge(id.val());
 		});
 		$('<div class="box"></div>').append("<h1>Highscore</h1>").append($("<button>View Highscore</button>").click(function () {
 			self.displayHighscore();
@@ -84,10 +83,15 @@ Game.prototype.displayHighscore = function()
 		for(var i = 1, j = 1; i < param.length; i += 4, j++)
 		{
 			$("<tr></tr>").appendTo(table).append("<td>" + j + "</td>") .append($("<td></td>").append("<a href='#'>"+param[i]+"</a>").click(function(e) {
-				self.socket.send("challenge", $(e.target).text());
+				self.challenge($(e.target).text());
 			})).append("<td>" + param[i + 1] + "</td>").append("<td>" + param[i + 2] + "</td>").append("<td><b>" + param[i + 3] + "</b></td>");
 		}
 	});
+}
+
+Game.prototype.challenge = function(player)
+{
+	this.socket.send("challenge", player);
 }
 
 Game.prototype.place = function(x, y)
@@ -124,19 +128,20 @@ Game.prototype.showGame = function(index)
 				self.gui.place(col, self.gui.lowestY(col), parseInt(param[3]));
 			}
 		});
-		self.socket.addHandler("win", function(param)
+		self.socket.addHandler("win", function(param2)
 		{
-			var x1 = parseInt(param[3]);
-			var x2 = parseInt(param[5]);
-			var y1 = parseInt(param[4]);
-			var y2 = parseInt(param[6]);
-			var username = param[1];
-			self.gui.win(x1, y1, x2, y2, function() {
-				message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
-				$("<button>Revange</button>").appendTo(mask.append("<br>")).click()
-				{
-				
-				};
+			var x1 = parseInt(param2[3]);
+			var x2 = parseInt(param2[5]);
+			var y1 = parseInt(param2[4]);
+			var y2 = parseInt(param2[6]);
+			var username = param2[1];
+			self.gui.win(x1, y1, x2, y2);
+			message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
+			$("<button>Revange</button>").appendTo(mask.append("<br>")).click(function()
+			{
+				var amnt = parseInt(param[5]);
+				for(var i = 0; i < amnt; i++)
+					if(param[6 + i] != self.username) self.challenge(param[6 + i]);
 			});
 		});
 		self.socket.addHandler("turn", function(param)
@@ -337,6 +342,7 @@ Game.prototype.loggedIn = function(username, password)
 {
 	setCookie("username", username, 14);
 	setCookie("password", password, 14); 	
+	this.username = username;
 	this.start();
 }
 
