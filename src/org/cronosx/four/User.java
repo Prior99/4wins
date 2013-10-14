@@ -54,7 +54,7 @@ public class User implements WebSocketListener
 		for(Integer i : tmpGameIDs)
 		{
 			Game g = server.getGamemanager().getGame(i);
-			games.add(g);
+			if(g != null)games.add(g);
 		}
 	}
 	

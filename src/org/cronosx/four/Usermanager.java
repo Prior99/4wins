@@ -34,7 +34,10 @@ public class Usermanager
 			int amount = in.readInt();
 			for(int i = 0; i < amount; i++)
 			{
-				users.put(in.readUTF(), new User(in, server));
+				String n = in.readUTF();
+				User u =  new User(in, server);
+				System.out.println(n + "->" + u.getName());
+				users.put(n, u);
 			}
 			in.close();
 			server.getLog().log(amount + " users successfully loaded.");
@@ -42,7 +45,7 @@ public class Usermanager
 		catch(Exception e)
 		{
 			server.getLog().error("Load failed!");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 	}
 	
