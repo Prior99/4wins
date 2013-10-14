@@ -131,8 +131,13 @@ Game.prototype.showGame = function(index)
 			var y1 = parseInt(param[4]);
 			var y2 = parseInt(param[6]);
 			var username = param[1];
-			self.gui.win(x1, y1, x2, y2);
-			message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
+			self.gui.win(x1, y1, x2, y2, function() {
+				message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
+				$("<button>Revange</button>").appendTo(mask.append("<br>")).click()
+				{
+				
+				};
+			});
 		});
 		self.socket.addHandler("turn", function(param)
 		{
@@ -179,6 +184,10 @@ Game.prototype.displayLobbyMask = function(param)
 	}
 	btn.appendTo(lobby.append("<br>").append("<br>")).click(function() {
 		self.socket.send("start", param[1]);
+	});
+	$('<button>Delete Game</button>').appendTo(lobby.append("<br>")).click(function () {
+		self.socket.send("delete", param[1]);
+		self.clearMasks();
 	});
 	this.socket.addHandler("lobbyjoin", function(param2) {
 		if(parseInt(param2[1]) == parseInt(param[1]))

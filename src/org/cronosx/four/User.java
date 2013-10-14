@@ -179,6 +179,18 @@ public class User implements WebSocketListener
 		send("placed;"+g.getID()+";"+col+";"+(int)u);
 	}
 	
+	private Game getGame(int id)
+	{
+		for(Game g : games)
+		{
+			if(g.getID() == id)
+			{
+				return g;
+			}
+		}
+		return null;
+	}
+	
 	
 	@Override
 	public void onMessage(String s, WebSocket origin)
@@ -203,6 +215,27 @@ public class User implements WebSocketListener
 					send("nouser;"+param[1]);
 				}
 			}
+			if(param[0].equals("delete") && param.length ==2)
+			{
+				try
+				{
+					int id = Integer.parseInt(param[1]);
+					Game g = getGame(id);
+					if(g != null)
+					{
+						for(User u : g.getUsers())
+						{
+							u.games.remove(g);
+							u.sendGameList();
+						}
+						server.getGamemanager().removeGame(g);
+					}
+				}
+				catch(Exception e)
+				{
+					server.getLog().error("This is not a number");
+				}
+			}
 			if(param[0].equals("highscore") && param.length == 1)
 			{
 				User[] us = server.getUsermanager().getUsersSorted();
@@ -218,7 +251,7 @@ public class User implements WebSocketListener
 				try
 				{
 					int id = Integer.parseInt(param[1]);
-					Game g = server.getGamemanager().getGame(id);
+					Game g = getGame(id);
 					if(g != null) g.start();
 					else sendGameList();
 				}
@@ -233,7 +266,7 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					int col = Integer.parseInt(param[2]);
-					Game g = server.getGamemanager().getGame(id);
+					Game g = getGame(id);
 					if(g != null) g.place(col, this);
 					else sendGameList();
 				}
@@ -252,7 +285,7 @@ public class User implements WebSocketListener
 				try
 				{
 					int id = Integer.parseInt(param[1]);
-					Game g = server.getGamemanager().getGame(id);
+					Game g = getGame(id);
 					if(g != null)
 					{
 						if(g.isStarted())

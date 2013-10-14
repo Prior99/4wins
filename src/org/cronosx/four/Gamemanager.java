@@ -41,16 +41,20 @@ public class Gamemanager
 		games.remove(g);
 	}
 	
-	public Game getGame(int id)
-	{
-		return games.get(id);
-	}
-	
 	public Game createGame(User u1, User u2)
 	{
 		Game g = new Game(index++, 20, 15, server, u1, u2);
 		games.add(g);
 		return g;
+	}
+	
+	public Game getGame(int id)
+	{
+		for(Game g : games)
+		{
+			if(g.getID() == id) return g;
+		}
+		return null;
 	}
 	
 	public void load()
