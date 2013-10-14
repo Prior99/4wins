@@ -174,11 +174,6 @@ public class User implements WebSocketListener
 		}
 	}
 	
-	/*public void startGame(Game g)
-	{
-		send("start;"+g.getID());
-	}*/
-	
 	public void placed(int col, Game g, char u)
 	{
 		send("placed;"+g.getID()+";"+col+";"+(int)u);
@@ -197,7 +192,10 @@ public class User implements WebSocketListener
 				User u = server.getUsermanager().getUser(param[1]);
 				if(u != null && u != this)
 				{
-					server.getGamemanager().createGame(this, u);
+					if(games.size() < 10 && !server.getGamemanager().isGameExisting(u, this))
+					{
+						server.getGamemanager().createGame(this, u);
+					}
 					sendGameList();
 				}
 				else
@@ -205,25 +203,6 @@ public class User implements WebSocketListener
 					send("nouser;"+param[1]);
 				}
 			}
-			/*if(param[0].equals("join") && param.length == 2)
-			{
-				try
-				{
-					int id = Integer.parseInt(param[1]);
-					Game g = server.getGamemanager().getGame(id);
-					if(g != null && (g.getUsers()[0] == null ||  g.getUsers()[1] == null)) g.joinUser(this);
-					else sendGameList();
-				}
-				catch(Exception e)
-				{
-					server.getLog().error("This is not a number");
-				}
-			}
-			if(param[0].equals("create") && param.length == 1)
-			{
-				Game game = server.getGamemanager().createGame();
-				if(game != null) game.joinUser(this);
-			}*/
 			if(param[0].equals("highscore") && param.length == 1)
 			{
 				User[] us = server.getUsermanager().getUsersSorted();

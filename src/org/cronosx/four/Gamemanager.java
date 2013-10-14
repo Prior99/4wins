@@ -6,24 +6,39 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 public class Gamemanager
 {
 	private FourServer server;
-	private Map<Integer, Game> games;
-	private int amount;
+	private List<Game> games;
+	private int index;
 	
 	public Gamemanager(FourServer server)
 	{
 		this.server = server;
-		games = new HashMap<Integer, Game>();
+		games = new LinkedList<Game>();
 		load();
+	}
+	
+	public boolean isGameExisting(User u1, User u2)
+	{
+		for(Game g : games)
+		{
+			User[] us = g.getUsers();
+			if((us[0] == u1 && us[1] == u2) || (us[0] == u2 && us[1] == u1))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public void removeGame(Game g)
 	{
-		games.remove(g.getID());
+		games.remove(g);
 	}
 	
 	public Game getGame(int id)
@@ -33,8 +48,8 @@ public class Gamemanager
 	
 	public Game createGame(User u1, User u2)
 	{
-		Game g = new Game(amount, 20, 15, server, u1, u2);
-		games.put(amount++, g);
+		Game g = new Game(index++, 20, 15, server, u1, u2);
+		games.add(g);
 		return g;
 	}
 	
@@ -43,14 +58,14 @@ public class Gamemanager
 		try
 		{
 			DataInputStream in = new DataInputStream(new FileInputStream(new File("games.dat")));
-			amount = in.readInt();
+			index = in.readInt();
 			int amt = in.readInt();
 			for(int i = 0; i < amt; i++)
 			{
-				games.put(in.readInt(), new Game(in, server));
+				games.add(new Game(in, server));
 			}
 			in.close();
-			server.getLog().log(amount + " games successfully loaded.");
+			server.getLog().log(amt + " games successfully loaded.");
 		}
 		catch(Exception e)
 		{
@@ -64,12 +79,11 @@ public class Gamemanager
 		try
 		{
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("games.dat")));
-			out.writeInt(amount);
+			out.writeInt(index);
 			out.writeInt(games.size());
-			for(int i : games.keySet())
+			for(Game g : games)
 			{
-				out.writeInt(i);
-				games.get(i).save(out);
+				g.save(out);
 			}
 			out.close();
 			server.getLog().log(games.size() + " games successfully saved.", 150);

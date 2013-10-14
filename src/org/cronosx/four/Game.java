@@ -8,7 +8,6 @@ import java.util.List;
 
 public class Game
 {
-	private int id;
 	private int width;
 	private int height;
 	private char[][] area;
@@ -17,6 +16,7 @@ public class Game
 	private FourServer server;
 	private boolean started;
 	private char next;
+	private int id;
 	
 	private int x1, x2, y1, y2;
 	
