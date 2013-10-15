@@ -208,7 +208,7 @@ public class User implements WebSocketListener
 					{
 						server.getGamemanager().createGame(this, u);
 					}
-					sendGameList();
+					//sendGameList();
 				}
 				else
 				{

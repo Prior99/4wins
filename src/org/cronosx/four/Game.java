@@ -22,6 +22,7 @@ public class Game
 	
 	public Game(int id, int width, int height, FourServer server, User u1, User u2)
 	{
+		this.id = id;
 		users = new User[2];
 		users[0] = u1;
 		users[1] = u2;
@@ -32,7 +33,6 @@ public class Game
 		this.width = width;
 		this.height = height;
 		area = new char[width][height];
-		this.id = id;
 		started = false;
 		next = 0;
 	}
