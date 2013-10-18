@@ -51,6 +51,7 @@ Game.prototype.start = function()
 		time = time % 60;
 		var seconds = time;
 		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m";
+		self.navi.html("");
 		var user = $("<ul></ul>");//.appendTo(self.gamesw);
 		user.append("<li style='color: #BBBBFF'>Name: " + param[4] + "</li>");
 		user.append("<li style='color: #FFAA00'><b>Elo: " + param[5] + "<b></li>");
@@ -78,7 +79,7 @@ Game.prototype.start = function()
 		{
 			var btn = $("<a href='#'>"+param[i + 1]+"</a>").click(function()
 			{
-				self.showGame(this.index);
+				self.showGame(this.index, this.text);
 			}).appendTo($('<li></li>').appendTo(self.games))[0].index = param[i];
 		}
 		var join = $('<div class="box"></div>').append("<h1>Challenge Player</h1>").appendTo(self.gamesw);
@@ -151,7 +152,7 @@ Game.prototype.place = function(x, y)
 	this.socket.send("set", this.currentIndex, x);
 }
 
-Game.prototype.showGame = function(index)
+Game.prototype.showGame = function(index, name)
 {
 	var self = this;
 	this.currentIndex = index;
@@ -168,11 +169,12 @@ Game.prototype.showGame = function(index)
 			self.gui.destroy();
 		var mask = $("<div class='mask game'></div>").appendTo(self.parent);
 		self.masks.push(mask);
-		$("<h1>Game</h1>").appendTo(mask);
+		$("<div class='player'>" + param[6] + " is playing as <span class='player1'>Player One</span><br>" + param[7] + " is playing as <span class='player2'>Player Two</span></div>").appendTo(mask);
+		$("<h1>" + name + "</h1>").appendTo(mask);
 		self.gui = new FourWins(width, height, self, mask);
 		self.gui.setMap(param[3]);
 		if(param[4] == "true") self.gui.nextTurn();
-		$("<button>Delete</button>").appendTo(mask.append("<br>")).click(function()
+		$("<button>Delete</button>").appendTo(mask.append("<br>Delete this game permanently: ")).click(function()
 		{
 			self.socket.send("delete", index);
 			self.displayHighscore();

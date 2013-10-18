@@ -245,3 +245,23 @@ table tr td
 	padding-right: 		10px;
 	border-right: 		1px solid #BBB;
 }
+
+div.player
+{
+	float: right;
+	font-size: 12pt;
+}
+
+span.player1
+{
+	font-weight: bold;
+	color: #4353FF;
+	text-shadow: -1px 0 #0015FF, 0 1px #0015FF, 1px 0 #0015FF, 0 -1px #0015FF
+}
+
+span.player2
+{
+	font-weight: bold;
+	color: #FF2525;
+	text-shadow: -1px 0 #B30000, 0 1px #FF2525, 1px 0 #FF2525, 0 -1px #FF2525
+}
