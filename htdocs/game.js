@@ -276,7 +276,7 @@ Game.prototype.displayLoginMask = function()
 	username = $("<input type='text' />").appendTo(username);
 	password = $("<p></p>").appendTo(mask );
 	$("<label>Password:</label>").appendTo(password);
-	password = $("<input type='password' />").appendTo(password);
+	password = $("<input type='password' />").appendTo(password)
 	ok = $("<p></p>").appendTo(mask );
 	$("<label>Login:</label>").appendTo(ok);
 	ok = $("<button>OK</button>").appendTo(ok);
@@ -284,6 +284,18 @@ Game.prototype.displayLoginMask = function()
 	{
 		mask.remove();
 		self.login(username.val(), password.val());
+	});
+	password.keyup(function(e){
+		if(e.which == 13)
+		{
+			ok.click();
+		}
+	});
+	username.keyup(function(e){
+		if(e.which == 13)
+		{
+			ok.click();
+		}
 	});
 	reg = $("<p>Don't have an account? Create one </p>").appendTo(mask );
 	reg = $("<a href='#'>here</a>").appendTo(reg);
@@ -318,12 +330,23 @@ Game.prototype.displayRegisterMask = function()
 		mask.remove();
 		self.register(username.val(), password.val());
 	});
-	reg = $("<p>Don't have an account? Create one </p>").appendTo(mask );
-	reg = $("<a href='#'>here</a>").appendTo(reg);
-	reg.click(function()
-	{
-		self.displayRegisterMask();
-		mask.remove();
+	password.keyup(function(e){
+		if(e.which == 13)
+		{
+			ok.click();
+		}
+	});
+	username.keyup(function(e){
+		if(e.which == 13)
+		{
+			ok.click();
+		}
+	});
+	repeat.keyup(function(e){
+		if(e.which == 13)
+		{
+			ok.click();
+		}
 	});
 	function test()
 	{
