@@ -53,8 +53,8 @@ Game.prototype.start = function()
 		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m";
 		self.navi.html("");
 		var user = $("<ul></ul>");//.appendTo(self.gamesw);
-		user.append("<li style='color: #BBBBFF'>Name: " + param[4] + "</li>");
-		user.append("<li style='color: #FFAA00'><b>Elo: " + param[5] + "<b></li>");
+		user.append("<li>Name: " + param[4] + "</li>");
+		user.append("<li style='color: #BBBBFF'>Elo: " + param[5] + "</li>");
 		user.append("<li style='color: #AAFF00'>Won: " + won + " (" + wonp.toFixed(0) + "%)</li>");
 		user.append("<li style='color: #FF5500'>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</li>");
 		user.append("<li>Games: " + games + "</li>");
