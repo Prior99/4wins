@@ -14,11 +14,23 @@ public class Usermanager
 {
 	private FourServer server;
 	private Map<String, User> users;
+	private User darkRoomUser;
 	public Usermanager(FourServer server)
 	{
 		this.server = server;
 		this.users = new HashMap<String, User>();
 		load();
+	}
+	
+	public void attendDarkRoomGame(User u)
+	{
+		if(darkRoomUser == null)
+			darkRoomUser = u;
+		else
+		{
+			server.getGamemanager().createGame(u, darkRoomUser);
+			darkRoomUser = null;
+		}
 	}
 	
 	public User getUser(String user)

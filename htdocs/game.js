@@ -107,7 +107,12 @@ Game.prototype.displayHighscore = function()
 
 Game.prototype.challenge = function(player)
 {
+	var self = this;
 	this.socket.send("challenge", player);
+	this.socket.addHandler("created", function(param)
+	{
+		self.showGame(parseInt(param[1]));
+	});
 }
 
 Game.prototype.place = function(x, y)
@@ -136,6 +141,11 @@ Game.prototype.showGame = function(index)
 		self.gui = new FourWins(width, height, self, mask);
 		self.gui.setMap(param[3]);
 		if(param[4] == "true") self.gui.nextTurn();
+		$("<button>Delete</button>").appendTo(mask.append("<br>")).click(function()
+		{
+			self.socket.send("delete", index);
+			self.displayHighscore();
+		});
 		self.socket.addHandler("placed", function(param)
 		{
 			if(parseInt(param[1]) == self.currentIndex)
@@ -153,7 +163,7 @@ Game.prototype.showGame = function(index)
 			var username = param2[1];
 			self.gui.win(x1, y1, x2, y2);
 			message(ok, "Game Over!", "Player " + username + " has won the game!", function() {});
-			$("<button>Revange</button>").appendTo(mask.append("<br>")).click(function()
+			$("<button>Revanche</button>").appendTo(mask.append("<br>")).click(function()
 			{
 				var amnt = parseInt(param[5]);
 				for(var i = 0; i < amnt; i++)
@@ -175,11 +185,6 @@ Game.prototype.showGame = function(index)
 	});
 }
 
-Game.prototype.createGame = function()
-{
-	this.socket.send("create");
-	wait("Waiting for creation of game...");
-}
 
 Game.prototype.displayLobbyMask = function(param)
 {
@@ -208,7 +213,7 @@ Game.prototype.displayLobbyMask = function(param)
 	});
 	$('<button>Delete Game</button>').appendTo(lobby.append("<br>")).click(function () {
 		self.socket.send("delete", param[1]);
-		self.clearMasks();
+		self.displayHighscore();
 	});
 	this.socket.addHandler("lobbyjoin", function(param2) {
 		if(parseInt(param2[1]) == parseInt(param[1]))

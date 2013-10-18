@@ -204,9 +204,10 @@ public class User implements WebSocketListener
 				User u = server.getUsermanager().getUser(param[1]);
 				if(u != null && u != this)
 				{
-					if(games.size() < 10 && !server.getGamemanager().isGameExisting(u, this))
+					if(games.size() < 20 && !server.getGamemanager().isGameExisting(u, this))
 					{
-						server.getGamemanager().createGame(this, u);
+						Game g = server.getGamemanager().createGame(this, u);
+						send("created;"+g.getID());
 					}
 					//sendGameList();
 				}
@@ -245,6 +246,10 @@ public class User implements WebSocketListener
 					sb.append(";").append(u.getName()).append(";").append(u.getWins()).append(";").append(u.getLosses()).append(";").append(u.getElo());
 				}
 				send(sb.toString());
+			}
+			if(param[0].equals("darkroom"))
+			{
+				server.getUsermanager().attendDarkRoomGame(this);
 			}
 			if(param[0].equals("start") && param.length == 2)
 			{
