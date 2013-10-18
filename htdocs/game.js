@@ -65,7 +65,7 @@ Game.prototype.start = function()
 			window.location.reload();
 		}));
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
-		for(var i = 6; i < param.length; i+=2)
+		for(var i = 7; i < param.length; i+=2)
 		{
 			var btn = $("<a href='#'>"+param[i + 1]+"</a>").click(function()
 			{
@@ -80,9 +80,14 @@ Game.prototype.start = function()
 		$('<div class="box"></div>').append("<h1>Highscore</h1>").append($("<button>View Highscore</button>").click(function () {
 			self.displayHighscore();
 		})).appendTo(self.gamesw);
-		$('<div class="box"></div>').append("<h1>Darkroom</h1>").append("<p>Game with a random other player. Game will appear in list a soon as another player clicks this button.</p>").append($("<button>Attend Darkroomgame</button>").click(function(){
-			self.socket.send("darkroom");
-		})).appendTo(self.gamesw);
+		var darkRoom = $('<div class="box"></div>').append("<h1>Darkroom</h1>").append("<p>Game with a random other player. Game will appear in list a soon as another player clicks this button.</p>").appendTo(self.gamesw);
+		if(param[6] != "true")
+		{
+			var btn = $("<button>Attend Darkroomgame</button>").click(function(){
+				self.socket.send("darkroom");
+				btn.remove();
+			}).appendTo(darkRoom);
+		}
 		$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(self.gamesw);
 	});
 };

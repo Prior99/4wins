@@ -34,13 +34,12 @@ public class Usermanager
 			if(darkRoomUser == null)
 			{
 				darkRoomUser = u;
-				System.out.println(u.getName() + " is first user to attend darkroomgame");
 			}
 			else
 			{
-				System.out.println(u.getName() + " is second darkroomgameuser. game created!");
-				if(u != darkRoomUser) server.getGamemanager().createGame(u, darkRoomUser);
+				User tmp = darkRoomUser; 
 				darkRoomUser = null;
+				if(u != tmp) server.getGamemanager().createGame(u, tmp);
 			}
 		}
 	}
@@ -100,6 +99,11 @@ public class Usermanager
 			users.get(s).loadGames();
 	}
 	
+	public boolean isWaitingForDarkroom(User u)
+	{
+		return darkRoomUser == u;
+	}
+	
 	public void save()
 	{
 		try
@@ -124,7 +128,7 @@ public class Usermanager
 	public User login(String username, String password)
 	{
 		password = server.getSHA1(password);
-		server.getLog().log("User \"" + username + "\" attempted login with password \"" + password + "\"");
+		//server.getLog().log("User \"" + username + "\" attempted login with password \"" + password + "\"");
 		if(!users.containsKey(username)) return null;
 		else
 		{
@@ -140,7 +144,7 @@ public class Usermanager
 		else
 		{
 			password = server.getSHA1(password);
-			server.getLog().log("New user \"" + username + "\" registered with password \"" + password + "\"");
+			//server.getLog().log("New user \"" + username + "\" registered with password \"" + password + "\"");
 			User u = new User(username, password, server);
 			users.put(username, u);
 			return true;

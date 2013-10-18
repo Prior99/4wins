@@ -164,7 +164,7 @@ public class User implements WebSocketListener
 	{
 		if(socket != null)
 		{
-			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName()+";"+this.getElo());
+			StringBuilder sb = new StringBuilder("games;"+getWins()+";"+getLosses()+";"+this.getRegistered()+";"+this.getName()+";"+this.getElo()+";"+server.getUsermanager().isWaitingForDarkroom(this));
 			for(Game g : games)
 			{
 				if(g != null)
