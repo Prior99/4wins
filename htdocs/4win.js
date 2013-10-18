@@ -154,7 +154,7 @@ FourWins.prototype.init = function(width, height)
 	};
 	this.tileDim = { //Size of one tile
 		width: (this.dim.width / this.spread.width),
-		height: (this.dim.height / this.spread.height),
+		height: (this.dim.height / this.spread.height)
 	};
 	this.color = {
 		gridStrokeReally : "#FFF043",

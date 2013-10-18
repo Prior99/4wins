@@ -1,7 +1,9 @@
+var HOST = "localhost:2700";
+
 function Game()
 {
 	var self = this;
-	this.socket = new WebsocketConnection("localhost:2700");
+	this.socket = new WebsocketConnection(HOST);
 	this.socket.connect();
 	this.masks = new Array();
 	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
@@ -24,7 +26,6 @@ function Game()
 Game.prototype.start = function()
 {
 	var self = this;
-	console.log("Started!");
 	this.socket.send("games");
 	wait("Waiting for games");
 	this.navi.show();
@@ -385,8 +386,6 @@ Game.prototype.displayRegisterMask = function()
 Game.prototype.login = function(username, password)
 {
 	var self = this;
-	console.log(username);
-	console.log(password);
 	this.socket.send("login", username, password);
 	wait("Waiting for login...");
 	this.socket.addHandler("login", function(param)

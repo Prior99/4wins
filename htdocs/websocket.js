@@ -43,7 +43,6 @@ WebsocketConnection.prototype.onClose = function(evt)
 WebsocketConnection.prototype.onMessage = function(evt) 
 { 
 	var data = evt.data;
-	console.log("Received:\"" + data+ "\"");
 	var param = data.split(";");
 	var cmd = param[0];
 	if(param.length > 0) 
@@ -68,6 +67,5 @@ WebsocketConnection.prototype.send = function()
 	var command = arguments[0];
 	for(var i = 1; i < arguments.length; i++)
 		if(arguments[i] != undefined) command += ";" + arguments[i];
-	console.log("Sending:\""+command+"\"");
 	if(this.socket != null) this.socket.send(command);
 };
