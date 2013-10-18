@@ -22,14 +22,26 @@ public class Usermanager
 		load();
 	}
 	
+	public void removeUser(User u)
+	{
+		users.remove(u.getName());
+	}
+	
 	public void attendDarkRoomGame(User u)
 	{
-		if(darkRoomUser == null)
-			darkRoomUser = u;
-		else
+		if(u.getActiveGames() < 10)
 		{
-			server.getGamemanager().createGame(u, darkRoomUser);
-			darkRoomUser = null;
+			if(darkRoomUser == null)
+			{
+				darkRoomUser = u;
+				System.out.println(u.getName() + " is first user to attend darkroomgame");
+			}
+			else
+			{
+				System.out.println(u.getName() + " is second darkroomgameuser. game created!");
+				if(u != darkRoomUser) server.getGamemanager().createGame(u, darkRoomUser);
+				darkRoomUser = null;
+			}
 		}
 	}
 	

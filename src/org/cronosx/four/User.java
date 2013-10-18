@@ -191,6 +191,10 @@ public class User implements WebSocketListener
 		return null;
 	}
 	
+	public int getActiveGames()
+	{
+		return games.size();
+	}
 	
 	@Override
 	public void onMessage(String s, WebSocket origin)
@@ -204,7 +208,7 @@ public class User implements WebSocketListener
 				User u = server.getUsermanager().getUser(param[1]);
 				if(u != null && u != this)
 				{
-					if(games.size() < 20 && !server.getGamemanager().isGameExisting(u, this))
+					if(games.size() < 10 && !server.getGamemanager().isGameExisting(u, this))
 					{
 						Game g = server.getGamemanager().createGame(this, u);
 						send("created;"+g.getID());
@@ -215,6 +219,20 @@ public class User implements WebSocketListener
 				{
 					send("nouser;"+param[1]);
 				}
+			}
+			if(param[0].equals("removeuser") && param.length == 1)
+			{
+				while(!games.isEmpty())
+				{
+					Game g = games.remove(0);
+					for(User u : g.getUsers())
+					{
+						u.games.remove(g);
+						u.sendGameList();
+					}
+					server.getGamemanager().removeGame(g);
+				}
+				server.getUsermanager().removeUser(this);
 			}
 			if(param[0].equals("delete") && param.length ==2)
 			{

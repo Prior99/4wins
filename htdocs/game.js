@@ -7,6 +7,7 @@ function Game()
 	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
 	$('<div class="header"></div>').appendTo(wrapper);
 	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
+	$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(this.gamesw);
 	this.parent = $("<div class='content'></div>").appendTo(wrapper);
 	//$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
 	wait("Connecting...");
@@ -32,7 +33,9 @@ Game.prototype.start = function()
 		var lost = parseInt(param[2]);
 		var games = won +lost;
 		var wonp = (won /games) * 100;
+		if(games == 0) wonp = 0;
 		var lostp = (lost /games) * 100;
+		if(games == 0) lostp = 0;
 		var time = (new Date().getTime() - parseInt(param[3])*1000) / 1000;
 		var days = time / (24 * 60 * 60);
 		time = time % (24 * 60 * 60);
@@ -49,6 +52,18 @@ Game.prototype.start = function()
 		user.append("Lost: " + lost + " (" + lostp.toFixed(0) + "%)<br>");
 		user.append("Games: " + games + "<br>");
 		user.append("Since: " + since + "<br>");
+		user.append($("<button>Remove My Account</button>").click(function() {
+			message(ok, "Warning", "Removing your account is a PERMANENT and UNREVOKABLE action. Are you really, really sure you want to do this!?", function()
+					{
+						self.socket.send("removeuser");
+						window.location.reload();
+					});
+		}));
+		user.append($("<button>Logout</button>").click(function() {
+			eraseCookie("username");
+			eraseCookie("password");
+			window.location.reload();
+		}));
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
 		for(var i = 6; i < param.length; i+=2)
 		{
@@ -64,6 +79,9 @@ Game.prototype.start = function()
 		});
 		$('<div class="box"></div>').append("<h1>Highscore</h1>").append($("<button>View Highscore</button>").click(function () {
 			self.displayHighscore();
+		})).appendTo(self.gamesw);
+		$('<div class="box"></div>').append("<h1>Darkroom</h1>").append("<p>Game with a random other player. Game will appear in list a soon as another player clicks this button.</p>").append($("<button>Attend Darkroomgame</button>").click(function(){
+			self.socket.send("darkroom");
 		})).appendTo(self.gamesw);
 		$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(self.gamesw);
 	});
