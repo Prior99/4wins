@@ -6,10 +6,13 @@ function Game()
 	this.masks = new Array();
 	var wrapper = $('<div class="wrapper"></div>"').appendTo("body");
 	$('<div class="header"></div>').appendTo(wrapper);
-	this.gamesw = $('<div class="games"></div>').appendTo(wrapper);
-	$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(this.gamesw);
+	this.navi = $('<div class="navi"></div>').appendTo(wrapper).hide();
+	this.gamesw = $('<div class="games"></div>').appendTo(wrapper).hide();
 	this.parent = $("<div class='content'></div>").appendTo(wrapper);
-	//$('<div class="footer">Four the lulz | 2013 by Prior (Frederick Gnodtke) | I did it for the lulz.</div>').appendTo(wrapper);
+	this.oldw = this.parent.width();
+	console.log(this.parent);
+	this.parent.css({width: '1004px'});
+	$('<div class="bottom">2013 by Prior (Frederick Gnodtke)</div>').appendTo(wrapper);
 	wait("Connecting...");
 	this.socket.openSlave = function()
 	{
@@ -24,11 +27,13 @@ Game.prototype.start = function()
 	console.log("Started!");
 	this.socket.send("games");
 	wait("Waiting for games");
+	this.navi.show();
+	this.parent.css({width: this.oldw});
+	this.gamesw.show();
 	this.socket.addHandler("games", function(param)
 	{
 		unwait();
 		self.gamesw.html("");
-		var user = $('<div class="box"></div>').append("<h1>User</h1>").appendTo(self.gamesw);
 		var won = parseInt(param[1]);
 		var lost = parseInt(param[2]);
 		var games = won +lost;
@@ -46,24 +51,28 @@ Game.prototype.start = function()
 		time = time % 60;
 		var seconds = time;
 		var since = days.toFixed(0) + " d, " + hours.toFixed(0) + " h, " + minutes.toFixed(0) + " m";
-		user.append("<br>Name: " + param[4] + "<br>");
-		user.append("<b>Elo: " + param[5] + "</b><br>");
-		user.append("Won: " + won + " (" + wonp.toFixed(0) + "%)<br>");
-		user.append("Lost: " + lost + " (" + lostp.toFixed(0) + "%)<br>");
-		user.append("Games: " + games + "<br>");
-		user.append("Since: " + since + "<br>");
-		user.append($("<button>Remove My Account</button>").click(function() {
+		var user = $("<ul></ul>");//.appendTo(self.gamesw);
+		user.append("<li style='color: #BBBBFF'>Name: " + param[4] + "</li>");
+		user.append("<li style='color: #FFAA00'><b>Elo: " + param[5] + "<b></li>");
+		user.append("<li style='color: #AAFF00'>Won: " + won + " (" + wonp.toFixed(0) + "%)</li>");
+		user.append("<li style='color: #FF5500'>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</li>");
+		user.append("<li>Games: " + games + "</li>");
+		user.append("<li>Since: " + since + "</li>");
+		user.appendTo(self.navi);
+		var user = $("<ul style='float:right;'></ul>");//.appendTo(self.gamesw);
+		$("<a href='#'>Remove My Account</a>").click(function() {
 			message(ok, "Warning", "Removing your account is a PERMANENT and UNREVOKABLE action. Are you really, really sure you want to do this!?", function()
 					{
 						self.socket.send("removeuser");
 						window.location.reload();
 					});
-		}));
-		user.append($("<button>Logout</button>").click(function() {
+		}).appendTo($("<li></li>").appendTo(user));
+		$("<a href='#'>Logout</a>").click(function() {
 			eraseCookie("username");
 			eraseCookie("password");
 			window.location.reload();
-		}));
+		}).appendTo($("<li></li>").appendTo(user));
+		user.appendTo(self.navi);
 		self.games = $('<ul></ul>').appendTo($('<div class="box"></div>').appendTo(self.gamesw).append("<h1>Games</h1>"));
 		for(var i = 7; i < param.length; i+=2)
 		{
@@ -88,7 +97,6 @@ Game.prototype.start = function()
 				btn.remove();
 			}).appendTo(darkRoom);
 		}
-		$('<div class="box"></div>').append("<h1>Credits</h1>").append("<p>2013 by Prior <br>(Frederick Gnodtke)").appendTo(self.gamesw);
 	});
 };
 
@@ -234,7 +242,7 @@ Game.prototype.displayLobbyMask = function(param)
 	btn.appendTo(lobby.append("<br>").append("<br>")).click(function() {
 		self.socket.send("start", param[1]);
 	});
-	$('<button>Delete Game</button>').appendTo(lobby.append("<br>")).click(function () {
+	$('<button>Delete Game</button>').appendTo(lobby).click(function () {
 		self.socket.send("delete", param[1]);
 		self.displayHighscore();
 	});
@@ -328,7 +336,7 @@ Game.prototype.displayRegisterMask = function()
 	$("<label>Repeat:</label>").appendTo(repeat);
 	repeat = $("<input type='password' />").appendTo(repeat);
 	ok = $("<p></p>").appendTo(mask );
-	$("<label>Login:</label>").appendTo(ok);
+	$("<label>Register:</label>").appendTo(ok);
 	ok = $("<button>OK</button>").appendTo(ok);
 	ok.click(function()
 	{
