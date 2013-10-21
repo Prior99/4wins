@@ -240,7 +240,7 @@ public class User implements WebSocketListener
 				{
 					int id = Integer.parseInt(param[1]);
 					Game g = getGame(id);
-					if(g != null)
+					if(g != null && g.isDeletable())
 					{
 						for(User u : g.getUsers())
 						{

@@ -17,6 +17,7 @@ public class Game
 	private boolean started;
 	private char next;
 	private int id;
+	private int turn;
 	
 	private int x1, x2, y1, y2;
 	
@@ -37,8 +38,14 @@ public class Game
 		next = 0;
 	}
 
+	public boolean isDeletable()
+	{
+		return turn < 4; 
+	}
+	
 	public Game(DataInputStream in, FourServer server) throws IOException
 	{
+		next = in.readChar();
 		this.server = server;
 		id = in.readInt();
 		width = in.readInt();
@@ -67,6 +74,7 @@ public class Game
 	
 	public void save(DataOutputStream out) throws IOException
 	{
+		out.writeChar(next);
 		out.writeInt(id);
 		out.writeInt(width);
 		out.writeInt(height);
@@ -194,6 +202,7 @@ public class Game
 					for(User u : users)
 						u.placed(column, this, area[column][row]);
 					next++;
+					turn++;
 					next = (char)(next % 2);
 					users[next].nextTurn(this);
 				}
