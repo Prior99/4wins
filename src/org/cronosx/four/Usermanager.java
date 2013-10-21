@@ -5,6 +5,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -15,8 +17,18 @@ public class Usermanager
 	private FourServer server;
 	private Map<String, User> users;
 	private User darkRoomUser;
+	private MessageDigest sha1;
+	
 	public Usermanager(FourServer server)
 	{
+		try
+		{
+			sha1 = MessageDigest.getInstance("SHA-1");
+		}
+		catch(NoSuchAlgorithmException e)
+		{
+			e.printStackTrace();
+		}
 		this.server = server;
 		this.users = new HashMap<String, User>();
 		load();
@@ -127,7 +139,7 @@ public class Usermanager
 	
 	public User login(String username, String password)
 	{
-		password = server.getSHA1(password);
+		password = new String(sha1.digest(password.getBytes()));
 		//server.getLog().log("User \"" + username + "\" attempted login with password \"" + password + "\"");
 		if(!users.containsKey(username)) return null;
 		else
@@ -143,7 +155,7 @@ public class Usermanager
 		if(users.containsKey(username)) return false;
 		else
 		{
-			password = server.getSHA1(password);
+			password = new String(sha1.digest(password.getBytes()));
 			//server.getLog().log("New user \"" + username + "\" registered with password \"" + password + "\"");
 			User u = new User(username, password, server);
 			users.put(username, u);

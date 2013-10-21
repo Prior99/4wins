@@ -1,14 +1,13 @@
 package org.cronosx.four;
 
-import org.cronosx.server.DefaultWebSocketListener;
 import org.cronosx.websockets.WebSocket;
+import org.cronosx.websockets.WebSocketListener;
 
-public class WelcomeWebsocketListener extends DefaultWebSocketListener
+public class WelcomeWebsocketListener implements WebSocketListener
 {
 	private FourServer server;
 	public WelcomeWebsocketListener(FourServer server)
 	{
-		super(server);
 		this.server = server;
 	}
 
@@ -19,7 +18,7 @@ public class WelcomeWebsocketListener extends DefaultWebSocketListener
 	}
 
 	@Override
-	protected void parseMessage(String s, WebSocket origin)
+	public void onMessage(String s, WebSocket origin)
 	{
 		String[] param = s.split(";");
 		if(param.length > 0)
@@ -53,6 +52,27 @@ public class WelcomeWebsocketListener extends DefaultWebSocketListener
 				server.getLog().error("Received unknown command.");
 			}
 		}
+	}
+
+	@Override
+	public void onOpen(WebSocket origin)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onHandshake(WebSocket origin)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onClose(WebSocket origin)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 }
