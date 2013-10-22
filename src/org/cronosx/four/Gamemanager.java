@@ -9,7 +9,6 @@ public class Gamemanager
 {
 	private FourServer server;
 	private List<Game> games;
-	//private int index;
 	
 	public Gamemanager(FourServer server)
 	{
@@ -73,11 +72,14 @@ public class Gamemanager
 		{
 			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM games");
 			ResultSet rs = stmt.executeQuery();
+			int amount = 0;
 			while(rs.next())
 			{
 				int id = rs.getInt("id");
 				games.add(new Game(id, server));
+				amount++;
 			}
+			System.out.println(amount + " games loaded");
 		}
 		catch(Exception e)
 		{

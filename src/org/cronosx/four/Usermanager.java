@@ -82,7 +82,7 @@ public class Usermanager
 				users.put(id, new User(name, password, win, lose, registered, loggedIn, elo, id, server));
 				amount++;
 			}
-			server.getLog().log(amount + " users loaded!");
+			System.out.println(amount + " users loaded");
 			stmt.close();
 		}
 		catch(Exception e)

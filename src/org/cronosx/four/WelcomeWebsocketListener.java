@@ -49,7 +49,6 @@ public class WelcomeWebsocketListener implements WebSocketListener
 			}
 			else
 			{
-				server.getLog().error("Received unknown command.");
 			}
 		}
 	}

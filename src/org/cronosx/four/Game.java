@@ -159,7 +159,7 @@ public class Game
 	{
 		if(started)
 		{
-			server.getLog().error("Tried to start a game that was already started");
+			
 		}
 		else
 		{
@@ -252,7 +252,7 @@ public class Game
 		{
 			if(users[(next % 2)] != user)
 			{
-				server.getLog().log("User tried to set whose turn it isn't (" + (int)next + ")");
+				
 			}
 			else
 			{
@@ -270,8 +270,6 @@ public class Game
 				}
 			}
 		}
-		else
-			server.getLog().error("Tried to place coin on lobby game.");
 	}
 	
 	private boolean checkLine(int x, int y, int deltax, int deltay, byte c)

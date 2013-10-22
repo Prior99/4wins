@@ -276,7 +276,6 @@ public class User implements WebSocketListener
 				}
 				catch(Exception e)
 				{
-					server.getLog().error("This is not a number");
 				}
 			}
 			if(param[0].equals("highscore") && param.length == 1)
@@ -304,7 +303,6 @@ public class User implements WebSocketListener
 				}
 				catch(Exception e)
 				{
-					server.getLog().error("This is not a number");
 				}
 			}
 			if(param[0].equals("set") && param.length == 3)
@@ -319,8 +317,6 @@ public class User implements WebSocketListener
 				}
 				catch(Exception e)
 				{
-					server.getLog().error("This is not a number");
-					e.printStackTrace();
 				}
 			}
 			if(param[0].equals("games") && param.length == 1)
@@ -344,8 +340,6 @@ public class User implements WebSocketListener
 				}
 				catch(Exception e)
 				{
-					server.getLog().error("This is not a number");
-					e.printStackTrace();
 				}
 			}
 		}
