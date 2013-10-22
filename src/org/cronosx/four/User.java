@@ -1,8 +1,9 @@
 package org.cronosx.four;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,45 +18,15 @@ public class User implements WebSocketListener
 	private int lose;
 	private int registered;
 	private int loggedIn;
-	private boolean online;
 	private WebSocket socket;
 	private FourServer server;
 	private List<Game> games;
-	private List<Integer> tmpGameIDs;
 	private int elo;
+	private int id;
 	
 	public int getElo()
 	{
 		return elo;
-	}
-	
-	public User(DataInputStream in, FourServer server) throws IOException
-	{
-		tmpGameIDs = new LinkedList<Integer>();
-		games = new LinkedList<Game>();
-		this.server = server;
-		name = in.readUTF();
-		password = in.readUTF();
-		win = in.readInt();
-		lose = in.readInt();
-		registered = in.readInt();
-		loggedIn = in.readInt();
-		online = in.readBoolean();
-		elo = in.readInt();
-		int amount = in.readInt();
-		for(int i = 0; i < amount; i++)
-		{
-			tmpGameIDs.add(in.readInt());
-		}
-	}
-	
-	public void loadGames()
-	{
-		for(Integer i : tmpGameIDs)
-		{
-			Game g = server.getGamemanager().getGame(i);
-			if(g != null)games.add(g);
-		}
 	}
 	
 	public User(String name, String password, FourServer server)
@@ -66,31 +37,69 @@ public class User implements WebSocketListener
 		this.password = password;
 		registered = (int)(System.currentTimeMillis()/1000);
 		loggedIn = win = lose = 0;
-		online = false;
 		elo = 1000;
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("INSERT INTO users(name, password, elo, win, lose, created, last_login) VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			stmt.setString(1, name);
+			stmt.setString(2, password);
+			stmt.setDouble(3, elo);
+			stmt.setInt(4, 0);
+			stmt.setInt(5, 0);
+			stmt.setInt(6, registered);
+			stmt.setInt(7, registered);
+			stmt.executeUpdate();
+			ResultSet rs = stmt.getGeneratedKeys();
+			rs.first();
+			this.id = rs.getInt(1);
+			stmt.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	public void save(DataOutputStream out) throws IOException
+	public User(String name, String password, int win, int lose, int registered, int loggedIn, int elo, int id, FourServer server) throws IOException
 	{
-		out.writeUTF(name);
-		out.writeUTF(password);
-		out.writeInt(win);
-		out.writeInt(lose);
-		out.writeInt(registered);
-		out.writeInt(loggedIn);
-		out.writeBoolean(online);
-		out.writeInt(elo);
-		out.writeInt(games.size());
-		for(Game game : games)
-			out.writeInt(game.getID());
+		games = new LinkedList<Game>();
+		this.server = server;
+		this.name = name;
+		this.password = password;
+		this.win = win;
+		this.lose = lose;
+		this.registered = registered;
+		this.loggedIn = loggedIn;
+		this.elo = elo;
+		this.id = id;
+		
+	}
+	
+	public void loadGames()
+	{
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT game FROM players WHERE user = ?");
+			stmt.setInt(1,  id);
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next())
+			{
+				Game g = server.getGamemanager().getGame(rs.getInt("game"));
+				games.add(g);
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean login(String password)
 	{
 		if(password.equals(this.password))
 		{
-			online = true;
 			loggedIn = (int)(System.currentTimeMillis()/1000);
+			updateDB();
 			return true;
 		}
 		else
@@ -112,11 +121,6 @@ public class User implements WebSocketListener
 		return lose;
 	}
 	
-	public boolean isOnline()
-	{
-		return online;
-	}
-	
 	public int getRegistered()
 	{
 		return registered;
@@ -134,7 +138,6 @@ public class User implements WebSocketListener
 	
 	public void logout()
 	{
-		online = false;
 	}
 	
 	public void win(Game g, int elo)
@@ -142,6 +145,7 @@ public class User implements WebSocketListener
 		this.elo = elo;
 		games.remove(g);
 		win ++;
+		updateDB();
 		sendGameList();
 	}
 	
@@ -151,7 +155,27 @@ public class User implements WebSocketListener
 		this.elo = elo;
 		games.remove(g);
 		lose ++;
+		updateDB();
 		sendGameList();
+	}
+	
+	private void updateDB()
+	{
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("UPDATE users SET elo = ?, lose = ?, win = ?, last_login = ? WHERE id = ?");
+			stmt.setInt(1, elo);
+			stmt.setInt(2, lose);
+			stmt.setInt(3, win);
+			stmt.setInt(4, (int)(System.currentTimeMillis()/1000));
+			stmt.setInt(5, id);
+			stmt.executeUpdate();
+			stmt.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public void joined(Game game)
@@ -174,7 +198,7 @@ public class User implements WebSocketListener
 		}
 	}
 	
-	public void placed(int col, Game g, char u)
+	public void placed(int col, Game g, byte u)
 	{
 		send("placed;"+g.getID()+";"+col+";"+(int)u);
 	}
@@ -345,14 +369,14 @@ public class User implements WebSocketListener
 	
 	public void sendGame(Game g)
 	{
-		char[][] area = g.getArea();
+		byte[] area = g.getArea();
 		User[] users = g.getUsers();
 		StringBuilder sb = new StringBuilder("game;").append(g.getWidth()).append(";").append(g.getHeight()).append(";");
 		for(int i = 0; i < g.getWidth(); i++)
 		{
 			for(int j = 0; j < g.getHeight(); j++)
 			{
-				sb.append((char)('A' + area[i][j])+"");
+				sb.append((char)('A' + area[i * g.getHeight() + j])+"");
 			}
 		}
 		sb.append(";").append(g.isNext(this));
@@ -362,9 +386,14 @@ public class User implements WebSocketListener
 		send(sb.toString());
 	}
 	
-	public void sendWin(User u, char id, int x1, int y1, int x2, int y2)
+	public void sendWin(User u, byte id, int x1, int y1, int x2, int y2)
 	{
 		send("win;"+u.getName()+";"+id+";"+x1+";"+y1+";"+x2+";"+y2);
+	}
+	
+	public int getID()
+	{
+		return id;
 	}
 	
 	public void nextTurn(Game g)

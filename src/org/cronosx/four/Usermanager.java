@@ -1,26 +1,27 @@
 package org.cronosx.four;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
+import sun.misc.BASE64Encoder;
+
 public class Usermanager
 {
 	private FourServer server;
-	private Map<String, User> users;
+	private Map<Integer, User> users;
 	private User darkRoomUser;
 	private MessageDigest sha1;
+	private BASE64Encoder base64Enc;
 	
 	public Usermanager(FourServer server)
 	{
+		base64Enc = new BASE64Encoder();
 		try
 		{
 			sha1 = MessageDigest.getInstance("SHA-1");
@@ -30,7 +31,7 @@ public class Usermanager
 			e.printStackTrace();
 		}
 		this.server = server;
-		this.users = new HashMap<String, User>();
+		this.users = new HashMap<Integer, User>();
 		load();
 	}
 	
@@ -56,7 +57,7 @@ public class Usermanager
 		}
 	}
 	
-	public User getUser(String user)
+	public User getUser(int user)
 	{
 		return users.get(user);
 	}
@@ -65,22 +66,45 @@ public class Usermanager
 	{
 		try
 		{
-			DataInputStream in = new DataInputStream(new FileInputStream(new File("users.dat")));
-			int amount = in.readInt();
-			for(int i = 0; i < amount; i++)
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id, name, password, elo, win, lose, created, last_login FROM users");
+			ResultSet rs = stmt.executeQuery();
+			int amount = 0;
+			while(rs.next())
 			{
-				String n = in.readUTF();
-				User u =  new User(in, server);
-				System.out.println(n + "->" + u.getName());
-				users.put(n, u);
+				String name = rs.getString("name");
+				String password = rs.getString("password");
+				int win = rs.getInt("win");
+				int lose = rs.getInt("lose");
+				int registered = rs.getInt("created");
+				int loggedIn = rs.getInt("last_login");
+				int elo = rs.getInt("elo");
+				int id = rs.getInt("id");
+				users.put(id, new User(name, password, win, lose, registered, loggedIn, elo, id, server));
+				amount++;
 			}
-			in.close();
-			server.getLog().log(amount + " users successfully loaded.");
+			server.getLog().log(amount + " users loaded!");
+			stmt.close();
 		}
 		catch(Exception e)
 		{
-			server.getLog().error("Load failed!");
 			e.printStackTrace();
+		}
+	}
+	
+	public User getUser(String s)
+	{
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM users WHERE name = ?");
+			stmt.setString(1, s);
+			ResultSet rs = stmt.executeQuery();
+			rs.first();
+			return getUser(rs.getInt("id"));
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+			return null;
 		}
 	}
 	
@@ -88,7 +112,7 @@ public class Usermanager
 	{
 		User[] us = new User[users.size()];
 		int i = 0;
-		for(String s : users.keySet())
+		for(int s : users.keySet())
 		{
 			us[i++] = users.get(s);
 		}
@@ -107,8 +131,8 @@ public class Usermanager
 	
 	public void loadGames()
 	{
-		for(String s : users.keySet())
-			users.get(s).loadGames();
+		for(int i : users.keySet())
+			users.get(i).loadGames();
 	}
 	
 	public boolean isWaitingForDarkroom(User u)
@@ -116,35 +140,31 @@ public class Usermanager
 		return darkRoomUser == u;
 	}
 	
-	public void save()
+	public boolean isLoginValid(String username, String sha1)
 	{
 		try
 		{
-			DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("users.dat")));
-			out.writeInt(users.size());
-			for(String s : users.keySet())
-			{
-				out.writeUTF(s);
-				users.get(s).save(out);
-			}
-			out.close();	
-			server.getLog().log(users.size() + " users successfully saved.", 150);
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM users WHERE name = ? AND password = ?");
+			stmt.setString(1, username);
+			stmt.setString(2, sha1);
+			ResultSet rs = stmt.executeQuery();
+			if(rs.first()) return true;
+			else return false;
 		}
 		catch(Exception e)
 		{
-			server.getLog().error("Save failed!");
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
 	public User login(String username, String password)
 	{
-		password = new String(sha1.digest(password.getBytes()));
-		//server.getLog().log("User \"" + username + "\" attempted login with password \"" + password + "\"");
-		if(!users.containsKey(username)) return null;
+		password = base64Enc.encode(sha1.digest(password.getBytes()));
+		if(!isLoginValid(username, password)) return null;
 		else
 		{
-			User u = users.get(username);
+			User u = getUser(username);
 			if(!u.login(password)) return null;
 			return u;
 		}
@@ -155,10 +175,9 @@ public class Usermanager
 		if(users.containsKey(username)) return false;
 		else
 		{
-			password = new String(sha1.digest(password.getBytes()));
-			//server.getLog().log("New user \"" + username + "\" registered with password \"" + password + "\"");
+			password = base64Enc.encode(sha1.digest(password.getBytes()));
 			User u = new User(username, password, server);
-			users.put(username, u);
+			users.put(u.getID(), u);
 			return true;
 		}
 	}

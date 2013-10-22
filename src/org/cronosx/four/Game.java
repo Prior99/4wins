@@ -1,29 +1,26 @@
 package org.cronosx.four;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class Game
 {
 	private int width;
 	private int height;
-	private char[][] area;
+	private byte[] area;
 	private User[] users;
 	private double[] elo;
 	private FourServer server;
 	private boolean started;
-	private char next;
+	private int next;
 	private int id;
-	private int turn;
 	
 	private int x1, x2, y1, y2;
 	
-	public Game(int id, int width, int height, FourServer server, User u1, User u2)
+	public Game(int width, int height, FourServer server, User u1, User u2)
 	{
-		this.id = id;
 		users = new User[2];
 		users[0] = u1;
 		users[1] = u2;
@@ -33,70 +30,114 @@ public class Game
 		elo = new double[2];
 		this.width = width;
 		this.height = height;
-		area = new char[width][height];
+		area = new byte[width * height];
 		started = false;
 		next = 0;
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("INSERT INTO games(width, height, next_turn, area, started, created, last_update) VALUES (?, ?, 0, ?, 0, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			stmt.setInt(1, width);
+			stmt.setInt(2, height);
+			stmt.setBytes(3, area);
+			stmt.setInt(4, (int)(System.currentTimeMillis()/1000));
+			stmt.setInt(5, (int)(System.currentTimeMillis()/1000));
+			stmt.executeUpdate();
+			ResultSet keys = stmt.getGeneratedKeys();
+			keys.next();
+			id = keys.getInt(1);
+			stmt.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		for(int i = 0; i <= 1; i++)
+		{
+			try
+			{
+				PreparedStatement stmt = server.getDatabase().prepareStatement("INSERT INTO players(user, game, elo, number) VALUES (?, ?, ?, ?)");
+				stmt.setInt(1, users[i].getID());
+				stmt.setInt(2, getID());
+				stmt.setInt(3, 0);
+				stmt.setInt(4, i);
+				stmt.executeUpdate();
+				stmt.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public boolean isDeletable()
 	{
-		return turn < 4; 
+		return next < 4; 
 	}
 	
-	public Game(DataInputStream in, FourServer server) throws IOException
+	public Game(int id, FourServer server) throws IOException
 	{
-		next = in.readChar();
+		this.id = id;
 		this.server = server;
-		id = in.readInt();
-		width = in.readInt();
-		height = in.readInt();
-		users = new User[2];
-		elo = new double[2];
-		elo[0] = in.readDouble();
-		elo[1] = in.readDouble();
-		area = new char[width][height];
-		for(int i = 0; i < width; i++)
+		try
 		{
-			for(int j = 0; j < height; j++)
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT width, height, next_turn, area, started, created, last_update FROM games WHERE id = ?");
+			stmt.setInt(1, id);
+			ResultSet rs = stmt.executeQuery();
+			rs.first();
+			width = rs.getInt("width");
+			height = rs.getInt("height");
+			next = rs.getInt("next_turn");
+			area = rs.getBytes("area");
+			started = rs.getBoolean("started");
+			//created = rs.getInt("created");
+			//lastUpdate = rs.getInt("last_update");
+			
+			stmt.close();
+			
+			users = new User[2];
+			elo = new double[2];
+			
+			stmt = server.getDatabase().prepareStatement("SELECT user, elo FROM players WHERE game = ? ORDER BY number ASC");
+			stmt.setInt(1, id);
+			rs = stmt.executeQuery();
+			if(rs.first())
 			{
-				area[i][j] = in.readChar();
+				elo[0] = rs.getDouble("elo");
+				users[0] = server.getUsermanager().getUser(rs.getInt("user"));
+				if(rs.next())
+				{
+					elo[1] = rs.getDouble("elo");
+					users[1] = server.getUsermanager().getUser(rs.getInt("user"));
+				}
 			}
+			stmt.close();
 		}
-		//int amount = in.readInt();
-		String s = in.readUTF();
-		if(s.length() != 0)
-			users[0] = server.getUsermanager().getUser(s);
-		s = in.readUTF();
-		if(s.length() != 0)
-			users[1] = server.getUsermanager().getUser(s);
-		started = in.readBoolean();
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
-	public void save(DataOutputStream out) throws IOException
+	private void updateDB()
 	{
-		out.writeChar(next);
-		out.writeInt(id);
-		out.writeInt(width);
-		out.writeInt(height);
-		out.writeDouble(elo[0]);
-		out.writeDouble(elo[1]);
-		for(int i = 0; i < width; i++)
+		try
 		{
-			for(int j = 0; j < height; j++)
-			{
-				out.writeChar(area[i][j]);
-			}
+			PreparedStatement stmt = server.getDatabase().prepareStatement("UPDATE games SET next_turn = ?, area = ?, last_update = ?, started = ? WHERE id = ?");
+			stmt.setInt(1, next);
+			stmt.setBytes(2, area);
+			stmt.setInt(3, (int)(System.currentTimeMillis()/1000));
+			stmt.setBoolean(4, started);
+			stmt.setInt(5, id);
+			stmt.executeUpdate();
+			stmt.close();
 		}
-		if(users[0] != null) 
-			out.writeUTF(users[0].getName());
-		else 
-			out.writeUTF("");
-		if(users[1] != null) 
-			out.writeUTF(users[1].getName());
-		else 
-			out.writeUTF("");
-		out.writeBoolean(started);
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
+	
 	
 	public boolean isStarted()
 	{
@@ -111,7 +152,7 @@ public class Game
 	
 	public boolean isNext(User u)
 	{
-		return users[next] == u;
+		return users[next%2] == u;
 	}
 	
 	public void start()
@@ -130,16 +171,21 @@ public class Game
 		}
 	}
 	
-	public void joinUser(User u)
+	/*public void joinUser(User u)
 	{
 		if(!started)
 		{
 			if(users[0] == null || users[1] == null)
 			{
+				int num;
 				if(users[0] == null)
+				{
+					num = 0;
 					users[0] = u;
+				}
 				else
 				{
+					num = 1;
 					users[1] = u;
 				}
 				u.joined(this);
@@ -152,11 +198,27 @@ public class Game
 		else
 			server.getLog().error("Tried to join user on started game.");
 	}
-	
+	*/
 	private void calcElo()
 	{
 		elo[0] = 1/(1 + Math.pow(10, (users[1].getElo() - users[0].getElo()) / 400));
 		elo[1] = 1/(1 + Math.pow(10, (users[0].getElo() - users[1].getElo()) / 400));
+		try
+		{
+			for(int i = 0; i <= 1; i++)
+			{
+				PreparedStatement stmt = server.getDatabase().prepareStatement("UPDATE players SET elo = ? WHERE game = ? AND number = ?");
+				stmt.setDouble(1, elo[i]);
+				stmt.setInt(2, getID());
+				stmt.setInt(3, i);
+				stmt.executeUpdate();
+				stmt.close();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public int getWidth()
@@ -169,7 +231,7 @@ public class Game
 		return height;
 	}
 	
-	public char[][] getArea()
+	public byte[] getArea()
 	{
 		return area;
 	}
@@ -188,7 +250,7 @@ public class Game
 	{
 		if(started)
 		{
-			if(users[next] != user)
+			if(users[(next % 2)] != user)
 			{
 				server.getLog().log("User tried to set whose turn it isn't (" + (int)next + ")");
 			}
@@ -197,14 +259,14 @@ public class Game
 				int row = getLeast(column);
 				if(column >= 0 && column < width && row >= 0 && row < height)
 				{
-					area[column][row] = (char)(next + 1);
+					area[column * height + row] = (byte)((next % 2) + 1);
 					checkWin(column, row);
 					for(User u : users)
-						u.placed(column, this, area[column][row]);
+						u.placed(column, this, area[column * height + row]);
 					next++;
-					turn++;
-					next = (char)(next % 2);
-					users[next].nextTurn(this);
+					//next = (char)(next % 2);
+					users[(next % 2)].nextTurn(this);
+					updateDB();
 				}
 			}
 		}
@@ -212,7 +274,7 @@ public class Game
 			server.getLog().error("Tried to place coin on lobby game.");
 	}
 	
-	private boolean checkLine(int x, int y, int deltax, int deltay, char c)
+	private boolean checkLine(int x, int y, int deltax, int deltay, byte c)
 	{
 		int r;
 		x1 = x; x2 = x;
@@ -223,7 +285,7 @@ public class Game
 				x + i * deltax >= 0 && 
 				y + i * deltay < height && 
 				y + i * deltay >= 0 && 
-				area[x + i * deltax][y + i * deltay] == c; i++) 
+				area[(x + i * deltax) * height  + (y + i * deltay)] == c; i++)
 		{
 			x2 = x + i * deltax;
 			y2 = y + i * deltay;
@@ -234,7 +296,7 @@ public class Game
 				x - i * deltax >= 0 && 
 				y - i * deltay < height && 
 				y - i * deltay >= 0 && 
-				area[x - i * deltax][y - i *deltay] == c; i++) 
+				area[(x - i * deltax) * height + (y - i *deltay)] == c; i++) 
 		{
 			x1 = x - i * deltax;
 			y1 = y - i * deltay;
@@ -245,7 +307,7 @@ public class Game
 	
 	private void checkWin(int x, int y)
 	{
-		char orig = area[x][y];
+		byte orig = area[x * height + y];
 		if(checkLine(x, y, 1, 0, orig) ||
 				checkLine(x, y, 0, 1, orig) ||
 				checkLine(x, y, 1, 1, orig) ||
@@ -280,7 +342,7 @@ public class Game
 	{
 		for(int i = height -1; i >= 0; --i)
 		{
-			if(area[column][i] == 0) return i;
+			if(area[column * height + i] == 0) return i;
 		}
 		return -1;
 	}

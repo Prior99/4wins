@@ -1,20 +1,15 @@
 package org.cronosx.four;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.HashMap;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class Gamemanager
 {
 	private FourServer server;
 	private List<Game> games;
-	private int index;
+	//private int index;
 	
 	public Gamemanager(FourServer server)
 	{
@@ -39,11 +34,26 @@ public class Gamemanager
 	public void removeGame(Game g)
 	{
 		games.remove(g);
+		try
+		{
+			PreparedStatement stmt = server.getDatabase().prepareStatement("DELETE FROM players WHERE game = ?");
+			stmt.setInt(1, g.getID());
+			stmt.executeUpdate();
+			stmt.close();
+			stmt = server.getDatabase().prepareStatement("DELETE FROM games WHERE id = ?");
+			stmt.setInt(1, g.getID());
+			stmt.executeUpdate();
+			stmt.close();	
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	public Game createGame(User u1, User u2)
 	{
-		Game g = new Game(index++, 20, 15, server, u1, u2);
+		Game g = new Game(20, 15, server, u1, u2);
 		games.add(g);
 		return g;
 	}
@@ -61,40 +71,16 @@ public class Gamemanager
 	{
 		try
 		{
-			DataInputStream in = new DataInputStream(new FileInputStream(new File("games.dat")));
-			index = in.readInt();
-			int amt = in.readInt();
-			for(int i = 0; i < amt; i++)
+			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM games");
+			ResultSet rs = stmt.executeQuery();
+			while(rs.next())
 			{
-				games.add(new Game(in, server));
+				int id = rs.getInt("id");
+				games.add(new Game(id, server));
 			}
-			in.close();
-			server.getLog().log(amt + " games successfully loaded.");
 		}
 		catch(Exception e)
 		{
-			server.getLog().error("Load Failed!");
-			e.printStackTrace();
-		}
-	}
-	
-	public void save()
-	{
-		try
-		{
-			DataOutputStream out = new DataOutputStream(new FileOutputStream(new File("games.dat")));
-			out.writeInt(index);
-			out.writeInt(games.size());
-			for(Game g : games)
-			{
-				g.save(out);
-			}
-			out.close();
-			server.getLog().log(games.size() + " games successfully saved.", 150);
-		}
-		catch(Exception e)
-		{
-			server.getLog().error("Save failed!");
 			e.printStackTrace();
 		}
 	}
