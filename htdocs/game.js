@@ -55,9 +55,9 @@ Game.prototype.start = function()
 		self.navi.html("");
 		var user = $("<ul></ul>");//.appendTo(self.gamesw);
 		user.append("<li>Name: " + param[4] + "</li>");
-		user.append("<li style='color: #BBBBFF'>Elo: " + param[5] + "</li>");
-		user.append("<li style='color: #AAFF00'>Won: " + won + " (" + wonp.toFixed(0) + "%)</li>");
-		user.append("<li style='color: #FF5500'>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</li>");
+		user.append("<li>Elo: " + param[5] + "</li>");
+		user.append("<li>Won: " + won + " (" + wonp.toFixed(0) + "%)</li>");
+		user.append("<li>Lost: " + lost + " (" + lostp.toFixed(0) + "%)</li>");
 		user.append("<li>Games: " + games + "</li>");
 		user.append("<li>Since: " + since + "</li>");
 		user.appendTo(self.navi);
