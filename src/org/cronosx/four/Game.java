@@ -24,8 +24,6 @@ public class Game
 		users = new User[2];
 		users[0] = u1;
 		users[1] = u2;
-		u1.joined(this);
-		u2.joined(this);
 		this.server = server;
 		elo = new double[2];
 		this.width = width;
@@ -51,6 +49,8 @@ public class Game
 		{
 			e.printStackTrace();
 		}
+		u1.joined(this);
+		u2.joined(this);
 		for(int i = 0; i <= 1; i++)
 		{
 			try

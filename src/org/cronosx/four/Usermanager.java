@@ -165,7 +165,6 @@ public class Usermanager
 	
 	public boolean isLoginValid(String username, String sha1)
 	{
-		System.out.println(sha1);
 		try
 		{
 			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM users WHERE name = ? AND password = ?");
@@ -217,9 +216,6 @@ public class Usermanager
 				String name = in.readUTF();
 				in.readUTF();
 				String password = in.readUTF();
-				/*byte[] passwordBin = password.getBytes();
-				password = base64Enc.encode(passwordBin);*/
-				System.out.println(password);
 				int win = in.readInt();
 				int lose = in.readInt();
 				int registered = in.readInt();
