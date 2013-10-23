@@ -1,8 +1,12 @@
 package org.cronosx.four;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
@@ -21,11 +25,9 @@ public class Usermanager
 	private Map<Integer, User> users;
 	private User darkRoomUser;
 	private MessageDigest sha1;
-	private BASE64Encoder base64Enc;
 	
 	public Usermanager(FourServer server)
 	{
-		base64Enc = new BASE64Encoder();
 		try
 		{
 			sha1 = MessageDigest.getInstance("SHA-1");
@@ -37,6 +39,23 @@ public class Usermanager
 		this.server = server;
 		this.users = new HashMap<Integer, User>();
 		load();
+	}
+
+	/**
+	 * Encrypts the string with an unsalted SHA1-checksum
+	 * <p>
+	 * @param toEncrypt string that should be encrypted
+	 * @return encrypted string
+	 */
+	public String getSHA1(String toEncrypt)
+	{
+		byte[] enc = sha1.digest(toEncrypt.getBytes());
+		String result = "";
+		for(int i=0; i < enc.length; i++) 
+		{
+			result += Integer.toString((enc[i] & 0xff) + 0x100, 16).substring(1);
+		}
+		return result;
 	}
 	
 	public void removeUser(User u)
@@ -146,6 +165,7 @@ public class Usermanager
 	
 	public boolean isLoginValid(String username, String sha1)
 	{
+		System.out.println(sha1);
 		try
 		{
 			PreparedStatement stmt = server.getDatabase().prepareStatement("SELECT id FROM users WHERE name = ? AND password = ?");
@@ -164,7 +184,7 @@ public class Usermanager
 	
 	public User login(String username, String password)
 	{
-		password = base64Enc.encode(sha1.digest(password.getBytes()));
+		password = getSHA1(password);
 		if(!isLoginValid(username, password)) return null;
 		else
 		{
@@ -179,7 +199,7 @@ public class Usermanager
 		if(users.containsKey(username)) return false;
 		else
 		{
-			password = base64Enc.encode(sha1.digest(password.getBytes()));
+			password = getSHA1(password);
 			User u = new User(username, password, server);
 			users.put(u.getID(), u);
 			return true;
@@ -197,8 +217,9 @@ public class Usermanager
 				String name = in.readUTF();
 				in.readUTF();
 				String password = in.readUTF();
-				byte[] passwordBin = password.getBytes();
-				password = base64Enc.encode(passwordBin);
+				/*byte[] passwordBin = password.getBytes();
+				password = base64Enc.encode(passwordBin);*/
+				System.out.println(password);
 				int win = in.readInt();
 				int lose = in.readInt();
 				int registered = in.readInt();

@@ -51,6 +51,7 @@ public class FourServer
 		catch(Exception e)
 		{
 			System.out.println("Could not connect to database");
+			e.printStackTrace();
 		}
 	}
 	
