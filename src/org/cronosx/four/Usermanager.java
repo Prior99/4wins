@@ -1,9 +1,13 @@
 package org.cronosx.four;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -179,6 +183,54 @@ public class Usermanager
 			User u = new User(username, password, server);
 			users.put(u.getID(), u);
 			return true;
+		}
+	}
+	
+	public void importOld()
+	{
+		try
+		{
+			DataInputStream in = new DataInputStream(new FileInputStream(new File("users.dat")));
+			int amount = in.readInt();
+			for(int i = 0; i < amount; i++)
+			{
+				String name = in.readUTF();
+				in.readUTF();
+				String password = in.readUTF();
+				byte[] passwordBin = password.getBytes();
+				password = base64Enc.encode(passwordBin);
+				int win = in.readInt();
+				int lose = in.readInt();
+				int registered = in.readInt();
+				int loggedIn = in.readInt();
+				in.readBoolean();
+				int elo = in.readInt();
+				int amnt = in.readInt();
+				for(int j = 0; j < amnt; j++)
+				{
+					in.readInt();
+				}
+				PreparedStatement stmt = server.getDatabase().prepareStatement("INSERT INTO users(name, password, elo, win, lose, created, last_login) VALUES(?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+				stmt.setString(1, name);
+				stmt.setString(2, password);
+				stmt.setDouble(3, elo);
+				stmt.setInt(4, win);
+				stmt.setInt(5, lose);
+				stmt.setInt(6, registered);
+				stmt.setInt(7, loggedIn);
+				stmt.executeUpdate();
+				ResultSet rs = stmt.getGeneratedKeys();
+				rs.first();
+				int tmpid = rs.getInt(1);
+				users.put(tmpid, new User(name, password, win, lose, registered, loggedIn, elo, tmpid, server));
+				stmt.close();
+			}
+			System.out.println(amount + " users imported to database!");
+			in.close();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

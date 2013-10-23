@@ -1,5 +1,6 @@
 package org.cronosx.four;
 
+import java.io.File;
 import java.util.Scanner;
 
 public class CommandlineListener extends Thread
@@ -28,6 +29,10 @@ public class CommandlineListener extends Thread
 		if(param[0].equals("quit"))
 		{
 			server.shutdown();
+		}
+		if(param[0].equals("importOld"))
+		{
+			server.getUsermanager().importOld();
 		}
 		else
 		{
