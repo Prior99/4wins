@@ -41,7 +41,7 @@ public class FourServer
 		config = new Config(new File("server.conf"));
 		try
 		{
-			conn = DriverManager.getConnection("jdbc:" + config.getStr("db-server", "mysql://localhost") + "/" + config.getStr("db-database", "four"), config.getStr("db-user", "root"), config.getStr("db-password", ""));
+			reconnectDB();
 			userManager = new Usermanager(this);
 			gameManager = new Gamemanager(this);
 			userManager.loadGames();
@@ -53,6 +53,11 @@ public class FourServer
 			System.out.println("Could not connect to database");
 			e.printStackTrace();
 		}
+	}
+	
+	private void reconnectDB() throws SQLException
+	{
+		conn = DriverManager.getConnection("jdbc:" + config.getStr("db-server", "mysql://localhost") + "/" + config.getStr("db-database", "four")+"?autoReconnect=true", config.getStr("db-user", "root"), config.getStr("db-password", ""));
 	}
 	
 	public Usermanager getUsermanager()
@@ -73,6 +78,15 @@ public class FourServer
 	
 	public Connection getDatabase()
 	{
+		try
+		{
+			if(conn.isClosed()) 
+				reconnectDB();
+		}
+		catch(SQLException e)
+		{
+			e.printStackTrace();
+		}
 		return conn;
 		
 	}
